@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 @Getter
 @Setter
-@AllArgsConstructor
+//@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "user", uniqueConstraints = { @UniqueConstraint(columnNames = "username"),
@@ -30,7 +30,8 @@ import lombok.Setter;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    
+    	private Long id;
     
         private String name;
     
@@ -40,8 +41,6 @@ public class User {
         private String phoneNumber;
     
         private String address;
-    
-        private String password;
     
         @Column(name = "remember_token")
         private String rememberToken;
@@ -53,6 +52,9 @@ public class User {
         private Date updatedAt;
     
         private String username;
+
+        
+        private String password;
     
     @ManyToMany (fetch = FetchType. LAZY)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"),
@@ -60,11 +62,7 @@ public class User {
     private Set<Role> roles = new HashSet<>();
 //   public User() {
 //    }
-//    public User (String username, String email, String password, String address) {
-//        this.username = username;
-//       this. email = email;
-//        this.password = password;
-//    }
+ 
     
     
    public String getAddress() {
@@ -102,6 +100,20 @@ public Long getId() {
 	}
 	public void setRoles (Set<Role> roles) {
 	   this.roles = roles;
+	}
+	public User(Long id, String name, String email, String phoneNumber, String address, 
+			String rememberToken, Date createdAt, Date updatedAt, String username,String password) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.email = email;
+		this.phoneNumber = phoneNumber;
+		this.address = address;
+		this.password = password;
+		this.rememberToken = rememberToken;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
+		this.username = username;
 	}
 	
   }
