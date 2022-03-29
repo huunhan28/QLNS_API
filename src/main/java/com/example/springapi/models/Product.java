@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Objects;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -30,6 +31,7 @@ public class Product {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "product_id")
 	private long productId;
 
 	@ManyToOne
@@ -48,11 +50,6 @@ public class Product {
 	private int id;
 	private String url;
 	private int year;
-
-	@OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
-	private Collection<Image> image;
-
-	
 	
 }
 

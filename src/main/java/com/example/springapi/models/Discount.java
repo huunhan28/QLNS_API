@@ -1,5 +1,6 @@
 package com.example.springapi.models;
 
+import java.util.Date;
 import java.util.Collection;
 
 import javax.persistence.Column;
@@ -10,6 +11,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,24 +26,26 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "category")
-public class Category {
-	
-	@Id
+@Table(name = "discount")
+public class Discount {
+
+    @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	
-	@Column(name = "category_id")
+	@Column(name = "discount_id")
 	private Long id;
-	
-	@Column(name = "name")
-	private String name;
-	
-	@Column(name = "description")
-	private String description;
 
-	// @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
-	// private Collection<Product> product;
+    private int quantity;
 
+    private float values;
 
-	
+    @Temporal(TemporalType.DATE)
+	@DateTimeFormat(pattern = "dd/MM/yyyy")
+    private Date startDate;
+
+    @Temporal(TemporalType.DATE)
+	@DateTimeFormat(pattern = "dd/MM/yyyy")
+    private Date endDate;
+
+    @OneToMany(mappedBy = "discount", fetch = FetchType.EAGER)
+	private Collection<Order> order;
 }
