@@ -16,7 +16,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
+import javax.persistence.ForeignKey;
+import javax.persistence.MapsId;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.example.springapi.security.entity.User;
@@ -45,11 +46,22 @@ public class Order  {
 
     @Temporal(TemporalType.DATE)
 	@DateTimeFormat(pattern = "dd/MM/yyyy")
+    @Column(name = "create_at")
     private Date createAt;
 
+    // @ManyToOne
+	// @JoinColumn(name = "id")
     @ManyToOne
-	@JoinColumn(name = "id")
+	@MapsId("id")
+	@JoinColumn(
+			name = "discount_id",
+			foreignKey = @ForeignKey(
+					name = "fk_discount"
+					)
+			) 
     private Discount discount;
 
     private String state;
+
+    
 }
