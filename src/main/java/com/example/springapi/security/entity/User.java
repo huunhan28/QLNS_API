@@ -135,4 +135,9 @@ public class User {
 		this.username = username;
 	}
 
+	public User(Long id, String newPassword){
+		this.id = id;
+		this.password = newPassword;
+	}
+
 }

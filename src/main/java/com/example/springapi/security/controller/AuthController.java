@@ -3,6 +3,8 @@ package com.example.springapi.security.controller;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -34,6 +36,7 @@ import com.example.springapi.security.common.JwtUtils;
 import com.example.springapi.security.dto.JwtResponse;
 import com.example.springapi.security.dto.LoginRequest;
 import com.example.springapi.security.dto.MessageResponse;
+import com.example.springapi.security.dto.ResetPasswordRequest;
 import com.example.springapi.security.dto.SignupRequest;
 import com.example.springapi.security.entity.Role;
 import com.example.springapi.security.entity.User;
@@ -136,23 +139,55 @@ public class AuthController {
 		try {
 			User userCreated = userRepository.save(user);
 			return AppUtils.returnJS(HttpStatus.OK, "Ok", "Register user successfully!", userCreated);
-		
-		} catch (ConstraintViolationException e) {
-			Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
-			String errorMessage = "";
-			if (!violations.isEmpty()) {
-				StringBuilder builder = new StringBuilder();
-				for (ConstraintViolation<?> o : violations) {
-					builder.append(" Column: " + o.getPropertyPath() + " " + o.getMessage())
-							.append(System.getProperty("line.separator"));
-				}
-				errorMessage = builder.toString();
-			} else {
-				errorMessage = "ConstraintViolationException occured.";
 
-			}
-			return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed", errorMessage, null);
+		} catch (ConstraintViolationException e) {
+			// Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
+			// String errorMessage = "";
+			// if (!violations.isEmpty()) {
+			// StringBuilder builder = new StringBuilder();
+			// for (ConstraintViolation<?> o : violations) {
+			// builder.append(" Column: " + o.getPropertyPath() + " " + o.getMessage())
+			// .append(System.getProperty("line.separator"));
+			// }
+			// errorMessage = builder.toString();
+			// } else {
+			// errorMessage = "ConstraintViolationException occured.";
+
+			// }
+			return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed", AppUtils.getExceptionSql(e), null);
 
 		}
+	}
+
+	@PostMapping("/resetPassword")
+	public ResponseEntity<ResponseObject> resetPassword(
+			@Validated @RequestBody ResetPasswordRequest resetPasswordRequest) {
+
+		String username = resetPasswordRequest.getUsername();
+		String oldPassword = resetPasswordRequest.getOldPassword();
+		String newPassword = resetPasswordRequest.getNewPassword();
+		String confirmPassword = resetPasswordRequest.getConfirmPassword();
+
+		Optional<User> userOptional = userRepository.findByUsername(username);
+		User user = null;
+		if (userOptional.isPresent()) {
+			user = userOptional.get();
+			if (encoder.matches(oldPassword, user.getPassword())) {
+				if (newPassword.equals(confirmPassword)) {
+					try {
+						user.setPassword(encoder.encode(newPassword));
+						User userUpdated = userRepository.save(user);
+						return AppUtils.returnJS(HttpStatus.OK, "Ok", "Update password successfully!", userUpdated);
+					} catch (ConstraintViolationException e) {
+						// TODO: handle exception
+						return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed", "Update password failed!" +
+								AppUtils.getExceptionSql(e), null);
+
+					}
+				}
+			}
+		}
+		return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed", "User not exists", null);
+
 	}
 }
