@@ -1,10 +1,17 @@
 package com.example.springapi.security.controller;
 
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+
+import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
+import org.hibernate.exception.SQLGrammarException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.springapi.apputil.AppUtils;
 import com.example.springapi.models.ResponseObject;
 import com.example.springapi.security.common.ERole;
 import com.example.springapi.security.common.JwtUtils;
@@ -37,6 +45,8 @@ import com.example.springapi.security.service.UserDetailsImpl;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
+	private static Logger logger = Logger.getLogger(UserRepository.class.getName());
 	@Autowired
 	AuthenticationManager authenticationManager;
 
@@ -52,45 +62,39 @@ public class AuthController {
 	@PostMapping("/signin")
 	public ResponseEntity<ResponseObject> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) {
 
-	
 		UsernamePasswordAuthenticationToken signin = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
 				loginRequest.getPassword());
-	
-			Authentication authentication=null;
-			try {
-				authentication = authenticationManager.authenticate(signin);
-			} catch (Exception e) {
-				//TODO: handle exception
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-					new ResponseObject(
-							"Failed",
-							"Sign in failed!", ""));
-			}
-			
-			SecurityContextHolder.getContext().setAuthentication(authentication);
-			String jwt = jwtutils.generateJwtToken(authentication);
-			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-			List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
-					.collect(Collectors.toList());
-			return ResponseEntity.status(HttpStatus.OK).body(
-					new ResponseObject(
-							"Ok", "Sign in successfully!", 
-									new JwtResponse(jwt, userDetails.getId(), userDetails.getName(),
-											userDetails.getEmail(), userDetails.getPhoneNumber(),
-											userDetails.getAddress(), userDetails.getRememberToken(),
-											userDetails.getCreatedAt(), userDetails.getUpdatedAt(),
-											userDetails.getUsername(), roles)));
-	
+
+		Authentication authentication = null;
+		try {
+			authentication = authenticationManager.authenticate(signin);
+		} catch (Exception e) {
+			// TODO: handle exception
+			return AppUtils.returnJS(HttpStatus.UNAUTHORIZED, "Failed", "Sign in failed! Check your account!", null);
+		}
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		String jwt = jwtutils.generateJwtToken(authentication);
+		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+		List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+				.collect(Collectors.toList());
+		return AppUtils.returnJS(HttpStatus.OK, "Ok", "Sign in successfully!",
+				new JwtResponse(jwt, userDetails.getId(), userDetails.getName(), userDetails.getEmail(),
+						userDetails.getPhoneNumber(), userDetails.getAddress(), userDetails.getRememberToken(),
+						userDetails.getCreatedAt(), userDetails.getUpdatedAt(),
+						userDetails.getUsername(), roles));
 
 	}
 
 	@PostMapping("/signup")
-	public ResponseEntity<?> registerUser(@Validated @RequestBody SignupRequest signUpRequest) {
+	public ResponseEntity<ResponseObject> registerUser(@Validated @RequestBody SignupRequest signUpRequest) {
 		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-			return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
+			return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed", "Username is already taken!", null);
+
 		}
 		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-			return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is alreadv in use!"));
+			return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed", "Email is already taken!", null);
+
 		}
 		// Create new user's account
 		// Create new user's account
@@ -112,24 +116,43 @@ public class AuthController {
 					.orElseThrow(() -> new RuntimeException("Error: Role is not found. "));
 			roles.add(userRole);
 		} else {
-			strRoles.forEach(role -> {
+			for (String role : strRoles) {
+				role = role.toLowerCase();
+				System.out.println("role register:" + role);
 				switch (role) {
-					case "admin":
-						Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-								.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-						roles.add(adminRole);
-						break;
-					default:
+					case "user":// khi role là user
 						Role userRole = roleRepository.findByName(ERole.ROLE_USER)
 								.orElseThrow(() -> new RuntimeException("Error: Role is not found. "));
 						roles.add(userRole);
+						break;
+					default:
+						return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed", "Roles do not exists", null);
 
 				}
-			});
+			}
+
 		}
 		user.setRoles(roles);
-		userRepository.save(user);
-		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+		try {
+			User userCreated = userRepository.save(user);
+			return AppUtils.returnJS(HttpStatus.OK, "Ok", "Register user successfully!", userCreated);
+		
+		} catch (ConstraintViolationException e) {
+			Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
+			String errorMessage = "";
+			if (!violations.isEmpty()) {
+				StringBuilder builder = new StringBuilder();
+				for (ConstraintViolation<?> o : violations) {
+					builder.append(" Column: " + o.getPropertyPath() + " " + o.getMessage())
+							.append(System.getProperty("line.separator"));
+				}
+				errorMessage = builder.toString();
+			} else {
+				errorMessage = "ConstraintViolationException occured.";
 
+			}
+			return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed", errorMessage, null);
+
+		}
 	}
 }
