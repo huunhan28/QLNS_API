@@ -12,7 +12,7 @@ public class AppUtils {
         return ResponseEntity.status(httpStatus)
                 .body(
                         new ResponseObject(
-                                "Failed", "Roles do not exists!", object)
+                                status, message, object)
 
                 );
     }
