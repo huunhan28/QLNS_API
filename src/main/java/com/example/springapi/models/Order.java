@@ -20,6 +20,8 @@ import javax.persistence.ForeignKey;
 import javax.persistence.MapsId;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.example.springapi.security.entity.User;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -60,4 +62,6 @@ public class Order  {
     private Discount discount;
 
     private String state;
+
+    
 }

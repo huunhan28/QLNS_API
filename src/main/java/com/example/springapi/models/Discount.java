@@ -30,9 +30,8 @@ import lombok.Setter;
 public class Discount {
 
     @Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "discount_id")
-	private Long id;
+	private String id;
 
     private int quantity;
 
@@ -46,6 +45,6 @@ public class Discount {
 	@DateTimeFormat(pattern = "dd/MM/yyyy")
     private Date endDate;
 
-    @OneToMany(mappedBy = "discount", fetch = FetchType.EAGER)
-	private Collection<Order> order;
+    // @OneToMany(mappedBy = "discount", fetch = FetchType.EAGER)
+	// private Collection<Order> order;
 }
