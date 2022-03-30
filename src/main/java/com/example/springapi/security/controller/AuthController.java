@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.springapi.models.ResponseObject;
 import com.example.springapi.security.common.ERole;
 import com.example.springapi.security.common.JwtUtils;
 import com.example.springapi.security.dto.JwtResponse;
@@ -31,7 +33,7 @@ import com.example.springapi.security.repository.RoleRepository;
 import com.example.springapi.security.repository.UserRepository;
 import com.example.springapi.security.service.UserDetailsImpl;
 
-@CrossOrigin(origins = "*", maxAge=3600)
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -48,28 +50,38 @@ public class AuthController {
 	JwtUtils jwtutils;
 
 	@PostMapping("/signin")
-	public ResponseEntity<?> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) {
-		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginRequest.getUsername()
-						, loginRequest.getPassword()));
+	public ResponseEntity<ResponseObject> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) {
 
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-		String jwt = jwtutils.generateJwtToken(authentication);
-		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-		List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
-				.collect(Collectors.toList());
-		return ResponseEntity.ok(
-				new JwtResponse(jwt
-				, userDetails.getId()
-				, userDetails.getName()
-				, userDetails.getEmail()
-				, userDetails.getPhoneNumber()
-				, userDetails.getAddress()
-				, userDetails.getRememberToken()
-				, userDetails.getCreatedAt()
-				, userDetails.getUpdatedAt()
-				,userDetails.getUsername()
-				, roles));
+	
+		UsernamePasswordAuthenticationToken signin = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
+				loginRequest.getPassword());
+	
+			Authentication authentication=null;
+			try {
+				authentication = authenticationManager.authenticate(signin);
+			} catch (Exception e) {
+				//TODO: handle exception
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+					new ResponseObject(
+							"Failed",
+							"Sign in failed!", ""));
+			}
+			
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			String jwt = jwtutils.generateJwtToken(authentication);
+			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+			List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+					.collect(Collectors.toList());
+			return ResponseEntity.status(HttpStatus.OK).body(
+					new ResponseObject(
+							"Ok", "Sign in successfully!", 
+									new JwtResponse(jwt, userDetails.getId(), userDetails.getName(),
+											userDetails.getEmail(), userDetails.getPhoneNumber(),
+											userDetails.getAddress(), userDetails.getRememberToken(),
+											userDetails.getCreatedAt(), userDetails.getUpdatedAt(),
+											userDetails.getUsername(), roles)));
+	
+
 	}
 
 	@PostMapping("/signup")
@@ -82,7 +94,7 @@ public class AuthController {
 		}
 		// Create new user's account
 		// Create new user's account
-		User user = new User( 
+		User user = new User(
 				signUpRequest.getId(),
 				signUpRequest.getName(),
 				signUpRequest.getEmail(),
@@ -91,7 +103,7 @@ public class AuthController {
 				signUpRequest.getRememberToken(),
 				signUpRequest.getCreatedAt(),
 				signUpRequest.getUpdatedAt(),
-				signUpRequest.getUsername (),
+				signUpRequest.getUsername(),
 				encoder.encode(signUpRequest.getPassword()));
 		Set<String> strRoles = signUpRequest.getRole();
 		Set<Role> roles = new HashSet<>();
@@ -102,15 +114,15 @@ public class AuthController {
 		} else {
 			strRoles.forEach(role -> {
 				switch (role) {
-				case "admin":
-					Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-					roles.add(adminRole);
-					break;
-				default:
-					Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-							.orElseThrow(() -> new RuntimeException("Error: Role is not found. "));
-					roles.add(userRole);
+					case "admin":
+						Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+								.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+						roles.add(adminRole);
+						break;
+					default:
+						Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+								.orElseThrow(() -> new RuntimeException("Error: Role is not found. "));
+						roles.add(userRole);
 
 				}
 			});
