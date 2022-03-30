@@ -59,8 +59,17 @@ public class AuthController {
 		List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
 				.collect(Collectors.toList());
 		return ResponseEntity.ok(
-				new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername()
-						,userDetails.getEmail(),userDetails.getAddress(), roles));
+				new JwtResponse(jwt
+				, userDetails.getId()
+				, userDetails.getName()
+				, userDetails.getEmail()
+				, userDetails.getPhoneNumber()
+				, userDetails.getAddress()
+				, userDetails.getRememberToken()
+				, userDetails.getCreatedAt()
+				, userDetails.getUpdatedAt()
+				,userDetails.getUsername()
+				, roles));
 	}
 
 	@PostMapping("/signup")
@@ -86,7 +95,7 @@ public class AuthController {
 				encoder.encode(signUpRequest.getPassword()));
 		Set<String> strRoles = signUpRequest.getRole();
 		Set<Role> roles = new HashSet<>();
-		if (strRoles == null) {
+		if (strRoles == null) {// if not role then set default is user
 			Role userRole = roleRepository.findByName(ERole.ROLE_USER)
 					.orElseThrow(() -> new RuntimeException("Error: Role is not found. "));
 			roles.add(userRole);
@@ -98,15 +107,11 @@ public class AuthController {
 							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 					roles.add(adminRole);
 					break;
-				case "mod":
-					Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
-							.orElseThrow(() -> new RuntimeException("Error: Role is not found. "));
-					roles.add(modRole);
-					break;
 				default:
 					Role userRole = roleRepository.findByName(ERole.ROLE_USER)
 							.orElseThrow(() -> new RuntimeException("Error: Role is not found. "));
 					roles.add(userRole);
+
 				}
 			});
 		}
