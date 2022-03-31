@@ -13,5 +13,7 @@ import org.springframework.stereotype.Repository;
 public interface CartResponsitory extends JpaRepository<Cart, Long>{
 
     Optional<Cart> findByProduct(Product product);
+
+    void deleteByUserId(Long id);
     
 }

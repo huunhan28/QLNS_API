@@ -50,6 +50,9 @@ public class Product {
 	private int id;
 	private String url;
 	private int year;
+
+	@OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
+	private Collection<Image> images;
 	
 }
 

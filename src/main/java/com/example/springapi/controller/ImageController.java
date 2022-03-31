@@ -47,10 +47,10 @@ public class ImageController {
 		Optional<Image> foundImage = responsitory.findById(id);
 		if(foundImage.isPresent()) {
 			return ResponseEntity.status(HttpStatus.OK).body(
-					new ResponseObject("ok!", "Query image sucessfully", foundImage));
+					new ResponseObject("ok", "Query image sucessfully", foundImage));
 		}else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-						new ResponseObject("failed!", "Can not find image with id=" + id, ""));
+						new ResponseObject("failed", "Can not find image with id=" + id, ""));
 		}
         
 	}

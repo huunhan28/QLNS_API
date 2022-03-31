@@ -50,10 +50,10 @@ public class CartController {
 		Optional<Cart> foundCart = cartResponsitory.findByProduct(foundProduct.get());
 		if(foundCart.isPresent()) {
 			return ResponseEntity.status(HttpStatus.OK).body(
-					new ResponseObject("ok!", "Query cart sucessfully", foundCart));
+					new ResponseObject("ok", "Query cart sucessfully", foundCart));
 		}else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-						new ResponseObject("failed!", "Can not find cart with id=" + id, ""));
+						new ResponseObject("failed", "Can not find cart with id=" + id, ""));
 		}
         
 	}
@@ -74,22 +74,22 @@ public class CartController {
         );
     }
 
-	//Delete a Cart  follow User => DELETE method
-    @DeleteMapping("/{id}")
-    ResponseEntity<ResponseObject> deleteCartFollowUser(@PathVariable Long id) {
-        boolean exists = userResponsitory.existsById( id);
-        if(exists) {
-			while(userResponsitory.existsByUserId( id)){
-				cartResponsitory.deleteByUserId( id);
-			}
+	// //Delete a Cart  follow User => DELETE method
+    // @DeleteMapping("/{id}")
+    // ResponseEntity<ResponseObject> deleteCartFollowUser(@PathVariable Long id) {
+    //     boolean exists = userResponsitory.existsById( id);
+    //     if(exists) {
+	// 		while(userResponsitory.existsByUserId( id)){
+	// 			cartResponsitory.deleteByUserId( id);
+	// 		}
             
-            return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Delete Cart successfully", "")
-            );
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-            new ResponseObject("failed", "Cannot find user to delete cart", "")
-        );
-    }
+    //         return ResponseEntity.status(HttpStatus.OK).body(
+    //             new ResponseObject("ok", "Delete Cart successfully", "")
+    //         );
+    //     }
+    //     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+    //         new ResponseObject("failed", "Cannot find user to delete cart", "")
+    //     );
+    // }
 	
 }

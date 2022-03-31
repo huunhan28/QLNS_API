@@ -37,10 +37,10 @@ public class ProductController {
 		Optional<Product> foundProduct = responsitory.findById(id);
 		if(foundProduct.isPresent()) {
 			return ResponseEntity.status(HttpStatus.OK).body(
-					new ResponseObject("ok!", "Query product sucessfully", foundProduct));
+					new ResponseObject("ok", "Query product sucessfully", foundProduct));
 		}else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-						new ResponseObject("failed!", "Can not find product with id=" + id, ""));
+						new ResponseObject("failed", "Can not find product with id=" + id, ""));
 		}
         
 	}

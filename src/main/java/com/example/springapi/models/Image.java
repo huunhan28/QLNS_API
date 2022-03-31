@@ -7,6 +7,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import lombok.AllArgsConstructor;
@@ -23,10 +25,12 @@ import lombok.Setter;
 public class Image {
     @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@JsonIgnore
 	@Column(name = "image_id")
 	private Long id;
 
     @ManyToOne
+	@JsonIgnore
 	@JoinColumn(name = "product_id")
 	private Product product;
 
