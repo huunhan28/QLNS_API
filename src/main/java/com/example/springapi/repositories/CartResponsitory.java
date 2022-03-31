@@ -14,6 +14,8 @@ public interface CartResponsitory extends JpaRepository<Cart, Long>{
 
     Optional<Cart> findByProduct(Product product);
 
+    boolean existsByUserId(Long id);
+    
     void deleteByUserId(Long id);
     
 }

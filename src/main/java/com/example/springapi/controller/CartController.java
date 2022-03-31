@@ -74,6 +74,7 @@ public class CartController {
         );
     }
 
+
 	// //Delete a Cart  follow User => DELETE method
     // @DeleteMapping("/{id}")
     // ResponseEntity<ResponseObject> deleteCartFollowUser(@PathVariable Long id) {
@@ -81,8 +82,7 @@ public class CartController {
     //     if(exists) {
 	// 		while(userResponsitory.existsByUserId( id)){
 	// 			cartResponsitory.deleteByUserId( id);
-	// 		}
-            
+	// 		}    
     //         return ResponseEntity.status(HttpStatus.OK).body(
     //             new ResponseObject("ok", "Delete Cart successfully", "")
     //         );

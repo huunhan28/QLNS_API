@@ -1,12 +1,13 @@
 package com.example.springapi.security.repository;
 
+import java.lang.StackWalker.Option;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.springapi.security.entity.User;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>  {
 	 /**
      * Find user by user name
      * @param username
@@ -18,6 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @param username
      * @return Boolean
      */
+    
     Boolean existsByUsername (String username);
     /**
      * Check exists an user email
