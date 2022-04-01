@@ -21,7 +21,7 @@ public class JwtResponse {
 
 	private String email;
 
-	private String phoneNumber;
+	private String username;
 
 	private String address;
 
@@ -30,16 +30,13 @@ public class JwtResponse {
 	private Date createdAt;
 
 	private Date updatedAt;
-
-	private String username;
 	private List<String> roles;
-	public JwtResponse(String token, Long id, String name, String email, String phoneNumber, String address,
-			String rememberToken, Date createdAt, Date updatedAt, String username, List<String> roles) {
+	public JwtResponse(String token, Long id, String name, String email, String username, String address,
+			String rememberToken, Date createdAt, Date updatedAt, List<String> roles) {
 		this.token = token;
 		this.id = id;
 		this.name = name;
 		this.email = email;
-		this.phoneNumber = phoneNumber;
 		this.address = address;
 		this.rememberToken = rememberToken;
 		this.createdAt = createdAt;

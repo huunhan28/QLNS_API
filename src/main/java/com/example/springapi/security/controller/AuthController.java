@@ -83,9 +83,9 @@ public class AuthController {
 				.collect(Collectors.toList());
 		return AppUtils.returnJS(HttpStatus.OK, "Ok", "Sign in successfully!",
 				new JwtResponse(jwt, userDetails.getId(), userDetails.getName(), userDetails.getEmail(),
-						userDetails.getPhoneNumber(), userDetails.getAddress(), userDetails.getRememberToken(),
+						userDetails.getUsername(), userDetails.getAddress(), userDetails.getRememberToken(),
 						userDetails.getCreatedAt(), userDetails.getUpdatedAt(),
-						userDetails.getUsername(), roles));
+						 roles));
 
 	}
 
@@ -105,12 +105,11 @@ public class AuthController {
 				signUpRequest.getId(),
 				signUpRequest.getName(),
 				signUpRequest.getEmail(),
-				signUpRequest.getPhoneNumber(),
+				signUpRequest.getUsername(),
 				signUpRequest.getAddress(),
 				signUpRequest.getRememberToken(),
 				signUpRequest.getCreatedAt(),
 				signUpRequest.getUpdatedAt(),
-				signUpRequest.getUsername(),
 				encoder.encode(signUpRequest.getPassword()));
 		Set<String> strRoles = signUpRequest.getRole();
 		Set<Role> roles = new HashSet<>();

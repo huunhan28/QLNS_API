@@ -40,12 +40,14 @@ public class User {
 	@NotBlank
 	private String name;
 
-	@NotBlank
+	// @NotBlank
 	private String email;
 
-	@NotBlank
-	@Column(name = "phone_number")
-	private String phoneNumber;
+	private String username;
+
+	// @NotBlank
+	// @Column(name = "username")
+	// private String usernameTemp;
 
 	private String address;
 
@@ -59,10 +61,10 @@ public class User {
 	@Column(name = "updated_at")
 	private Date updatedAt;
 
-	@NotBlank
-	private String username;
+	// @NotBlank
+	
 
-	@NotBlank
+	// @NotBlank
 	private String password;
 
 	@NotEmpty
@@ -120,13 +122,12 @@ public class User {
 		this.roles = roles;
 	}
 
-	public User(Long id, String name, String email, String phoneNumber, String address,
-			String rememberToken, Date createdAt, Date updatedAt, String username, String password) {
+	public User(Long id, String name, String email, String username, String address,
+			String rememberToken, Date createdAt, Date updatedAt, String password) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.email = email;
-		this.phoneNumber = phoneNumber;
 		this.address = address;
 		this.password = password;
 		this.rememberToken = rememberToken;

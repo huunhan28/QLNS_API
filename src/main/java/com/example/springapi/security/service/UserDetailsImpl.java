@@ -32,7 +32,7 @@ public class UserDetailsImpl implements UserDetails {
 
     private String email;
 
-    private String phoneNumber;
+    private String username;
 
     private String address;
 
@@ -42,7 +42,7 @@ public class UserDetailsImpl implements UserDetails {
 
     private Date updatedAt;
 
-    private String username;
+   //  private String username;
     @JsonIgnore
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
@@ -63,12 +63,11 @@ public class UserDetailsImpl implements UserDetails {
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getPhoneNumber(),
+                user.getUsername(),
                 user.getAddress(),
                 user.getRememberToken(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
-                user.getUsername (),
                user.getPassword(),
                authorities);
     }
