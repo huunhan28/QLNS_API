@@ -20,13 +20,14 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-// @AllArgsConstructor
+
 @NoArgsConstructor
 @Entity
 @Table(name = "user", uniqueConstraints = { @UniqueConstraint(columnNames = "username"),
@@ -67,12 +68,14 @@ public class User {
 	// @NotBlank
 	private String password;
 
-	@NotEmpty
-	@ManyToMany(fetch = FetchType.LAZY)
+	// @NotEmpty
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
 	// public User() {
 	// }
+
+	
 
 	public String getAddress() {
 		return address;
@@ -122,23 +125,45 @@ public class User {
 		this.roles = roles;
 	}
 
-	public User(Long id, String name, String email, String username, String address,
-			String rememberToken, Date createdAt, Date updatedAt, String password) {
-		super();
+	
+
+	public User(Long id, @NotBlank String name, String email, String username, String address, String rememberToken,
+			Date createdAt, Date updatedAt, Set<Role> roles) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
+		this.username = username;
 		this.address = address;
-		this.password = password;
 		this.rememberToken = rememberToken;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+		this.roles = roles;
+	}
+
+	
+
+	public User(Long id, @NotBlank String name, String email, String username, String address, String rememberToken,
+			Date createdAt, Date updatedAt, String password) {
+		this.id = id;
+		this.name = name;
+		this.email = email;
 		this.username = username;
+		this.address = address;
+		this.rememberToken = rememberToken;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
+		this.password = password;
 	}
 
 	public User(Long id, String newPassword){
 		this.id = id;
 		this.password = newPassword;
+	}
+
+	public User(String username, String name, String password) {
+		this.username = username;
+		this.name = name;
+		this.password = password;
 	}
 
 }

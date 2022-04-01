@@ -1,6 +1,7 @@
 package com.example.springapi.security.controller;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -48,7 +49,7 @@ import com.example.springapi.security.service.UserDetailsImpl;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-
+	private String type = "Bearer";
 	private static Logger logger = Logger.getLogger(UserRepository.class.getName());
 	@Autowired
 	AuthenticationManager authenticationManager;
@@ -79,45 +80,49 @@ public class AuthController {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String jwt = jwtutils.generateJwtToken(authentication);
 		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-		List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+		List<String> strRoles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
 				.collect(Collectors.toList());
+		Set<Role> roles=new HashSet<>();
+		strRoles.forEach(strRole->{
+			System.out.println("role"+strRole);
+			Role role = roleRepository.findByName(strRole).orElseThrow(() -> new RuntimeException("Error: Role is not found. "));
+			roles.add(role);
+		});
 		return AppUtils.returnJS(HttpStatus.OK, "Ok", "Sign in successfully!",
-				new JwtResponse(jwt, userDetails.getId(), userDetails.getName(), userDetails.getEmail(),
-						userDetails.getUsername(), userDetails.getAddress(), userDetails.getRememberToken(),
-						userDetails.getCreatedAt(), userDetails.getUpdatedAt(),
-						 roles));
+				new User(userDetails.getId(), userDetails.getName(), userDetails.getEmail(),
+						userDetails.getUsername(), userDetails.getAddress(),type+ " "+ jwt,
+						userDetails.getCreatedAt(), userDetails.getUpdatedAt(), roles));
 
 	}
 
 	@PostMapping("/signup")
 	public ResponseEntity<ResponseObject> registerUser(@Validated @RequestBody SignupRequest signUpRequest) {
 		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-			return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed", "Username is already taken!", null);
+			return AppUtils.returnJS(HttpStatus.OK, "Failed", "Username is already taken!", null);
 
 		}
-		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-			return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed", "Email is already taken!", null);
+		// if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+		// 	return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed", "Email is already taken!", null);
 
-		}
+		// }
 		// Create new user's account
 		// Create new user's account
 		User user = new User(
-				signUpRequest.getId(),
-				signUpRequest.getName(),
-				signUpRequest.getEmail(),
 				signUpRequest.getUsername(),
-				signUpRequest.getAddress(),
-				signUpRequest.getRememberToken(),
-				signUpRequest.getCreatedAt(),
-				signUpRequest.getUpdatedAt(),
+				signUpRequest.getName(),
+				
 				encoder.encode(signUpRequest.getPassword()));
+		
 		Set<String> strRoles = signUpRequest.getRole();
+		System.out.println("size of roles" );
 		Set<Role> roles = new HashSet<>();
 		if (strRoles == null) {// if not role then set default is user
+			System.out.println("Vao null");
 			Role userRole = roleRepository.findByName(ERole.ROLE_USER)
 					.orElseThrow(() -> new RuntimeException("Error: Role is not found. "));
 			roles.add(userRole);
 		} else {
+			System.out.println("Vao khac null");
 			for (String role : strRoles) {
 				role = role.toLowerCase();
 				System.out.println("role register:" + role);
@@ -128,18 +133,21 @@ public class AuthController {
 						roles.add(userRole);
 						break;
 					default:
-						return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed", "Roles do not exists", null);
+						return AppUtils.returnJS(HttpStatus.OK, "Failed", "Roles do not exists", null);
 
 				}
 			}
 
 		}
+		System.out.println("roles:" + roles.size() );
 		user.setRoles(roles);
 		try {
 			User userCreated = userRepository.save(user);
+			System.out.print("Vao success");
 			return AppUtils.returnJS(HttpStatus.OK, "Ok", "Register user successfully!", userCreated);
 
 		} catch (ConstraintViolationException e) {
+			System.out.println("vao constraint exception");
 			// Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
 			// String errorMessage = "";
 			// if (!violations.isEmpty()) {
@@ -153,7 +161,9 @@ public class AuthController {
 			// errorMessage = "ConstraintViolationException occured.";
 
 			// }
-			return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed", AppUtils.getExceptionSql(e), null);
+			System.out.println(AppUtils.getExceptionSql(e));
+
+			return AppUtils.returnJS(HttpStatus.OK, "Failed", AppUtils.getExceptionSql(e), null);
 
 		}
 	}
