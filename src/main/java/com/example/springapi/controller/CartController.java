@@ -44,7 +44,7 @@ public class CartController {
 	}
 
     @GetMapping("/product/{id}")
-	ResponseEntity<ResponseObject> getCart(@PathVariable Long id){
+	ResponseEntity<ResponseObject> getCartFollowProduct(@PathVariable Long id){
         Optional<Product> foundProduct = productResponsitory.findById(id);
         
 		Optional<Cart> foundCart = cartResponsitory.findByProduct(foundProduct.get());
@@ -56,6 +56,11 @@ public class CartController {
 						new ResponseObject("failed", "Can not find cart with id=" + id, ""));
 		}
         
+	}
+
+	@GetMapping("/user/{id}")
+	List<Cart> getAllCartsFollowUser(@PathVariable Long id){
+		return cartResponsitory.findAllByUserId(id);
 	}
 
 	//insert new Cart with POST method

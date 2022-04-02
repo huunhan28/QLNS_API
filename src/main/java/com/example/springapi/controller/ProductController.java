@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.springapi.dto.ProductDTO;
+import com.example.springapi.models.Category;
 import com.example.springapi.models.Product;
 import com.example.springapi.models.ResponseObject;
+import com.example.springapi.repositories.CategoryResponsitory;
 import com.example.springapi.repositories.ProductResponsitory;
 
 @RestController
@@ -26,6 +29,9 @@ public class ProductController {
 	
     @Autowired
 	ProductResponsitory responsitory;
+
+    @Autowired
+    CategoryResponsitory categoryResponsitory;
 	
 	@GetMapping("")
 	List<Product> getAllProducts(){
@@ -47,37 +53,67 @@ public class ProductController {
 	//insert new Product with POST method
     //Postman : Raw, JSON
     @PostMapping("/insert")
-    ResponseEntity<ResponseObject> insertProduct(@RequestBody Product newProduct) {
+    ResponseEntity<ResponseObject> insertProduct(@RequestBody ProductDTO newProductDTO) {
         //2 products must not have the same name !
-        List<Product> foundProducts = responsitory.findByName(newProduct.getName().trim());
+        Optional<Category> category=categoryResponsitory.findById(newProductDTO.getCategoryId());
+        List<Product> foundProducts = responsitory.findByName(newProductDTO.getName().trim());
         
         if(foundProducts.size() > 0) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
                 new ResponseObject("failed", "Product name already taken", "")
             );
         }
+        Product newProduct=new Product(newProductDTO.getProductId(),
+                                        category.isPresent() ? category.get(): null,
+                                        newProductDTO.getName(),
+                                        newProductDTO.getPrice(),
+                                        newProductDTO.getCalculationUnit(),
+                                        newProductDTO.getTotal(),
+                                        newProductDTO.getDescription(),
+                                        newProductDTO.getSlug(),
+                                        newProductDTO.isDisplay(),
+                                        newProductDTO.getRate(),
+                                        newProductDTO.getDiscount(),
+                                        newProductDTO.getId(),
+                                        newProductDTO.getUrl(),
+                                        newProductDTO.getYear());
         return ResponseEntity.status(HttpStatus.OK).body(
            new ResponseObject("ok", "Insert Product successfully", responsitory.save(newProduct))
         );
     }
 	//update, upsert = update if found, otherwise insert
     @PutMapping("/{id}")
-    ResponseEntity<ResponseObject> updateProduct(@RequestBody Product newProduct, @PathVariable Long id) {
+    ResponseEntity<ResponseObject> updateProduct(@RequestBody ProductDTO newProductDTO, @PathVariable Long id) {
+        Optional<Category> category=categoryResponsitory.findById(newProductDTO.getCategoryId());
+        Product newProduct=new Product(newProductDTO.getProductId(),
+                                        category.isPresent() ? category.get(): null,
+                                        newProductDTO.getName(),
+                                        newProductDTO.getPrice(),
+                                        newProductDTO.getCalculationUnit(),
+                                        newProductDTO.getTotal(),
+                                        newProductDTO.getDescription(),
+                                        newProductDTO.getSlug(),
+                                        newProductDTO.isDisplay(),
+                                        newProductDTO.getRate(),
+                                        newProductDTO.getDiscount(),
+                                        newProductDTO.getId(),
+                                        newProductDTO.getUrl(),
+                                        newProductDTO.getYear());
         Product updatedProduct = responsitory.findById(id)
                 .map(product -> {
-                    product.setCategory(newProduct.getCategory());
-					product.setName(newProduct.getName());
-					product.setPrice(newProduct.getPrice());
-					product.setCalculationUnit(newProduct.getCalculationUnit());
-					product.setTotal(newProduct.getTotal());
-					product.setDescription(newProduct.getDescription());
-					product.setSlug(newProduct.getSlug());
-					product.setDisplay(newProduct.isDisplay());
-					product.setRate(newProduct.getRate());
-					product.setDiscount(newProduct.getDiscount());
-					product.setId(newProduct.getId());
-					product.setUrl(newProduct.getUrl());
-					product.setYear(newProduct.getYear());
+                    product.setCategory(category.isPresent() ? category.get(): null);
+					product.setName(newProductDTO.getName());
+					product.setPrice(newProductDTO.getPrice());
+					product.setCalculationUnit(newProductDTO.getCalculationUnit());
+					product.setTotal(newProductDTO.getTotal());
+					product.setDescription(newProductDTO.getDescription());
+					product.setSlug(newProductDTO.getSlug());
+					product.setDisplay(newProductDTO.isDisplay());
+					product.setRate(newProductDTO.getRate());
+					product.setDiscount(newProductDTO.getDiscount());
+					product.setId(newProductDTO.getId());
+					product.setUrl(newProductDTO.getUrl());
+					product.setYear(newProductDTO.getYear());
                     return responsitory.save(product);
                 }).orElseGet(() -> {
                     newProduct.setProductId((long)id);

@@ -53,6 +53,25 @@ public class Product {
 
 	@OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
 	private Collection<Image> images;
+
+	public Product(long productId, Category category, String name, float price, String calculationUnit, int total,
+			String description, String slug, boolean display, float rate, float discount, int id, String url, int year) {
+		this.productId = productId;
+		this.category = category;
+		this.name = name;
+		this.price = price;
+		this.calculationUnit = calculationUnit;
+		this.total = total;
+		this.description = description;
+		this.slug = slug;
+		this.display = display;
+		this.rate = rate;
+		this.discount = discount;
+		this.id = id;
+		this.url = url;
+		this.year = year;
+	}
+
 	
 }
 
