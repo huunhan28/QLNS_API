@@ -3,6 +3,8 @@ package com.example.springapi.security.dto;
 import java.util.Date;
 import java.util.List;
 
+import com.example.springapi.security.entity.Role;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,9 +32,9 @@ public class JwtResponse {
 	private Date createdAt;
 
 	private Date updatedAt;
-	private List<String> roles;
+	private List<Role> roles;
 	public JwtResponse(String token, Long id, String name, String email, String username, String address,
-			String rememberToken, Date createdAt, Date updatedAt, List<String> roles) {
+			String rememberToken, Date createdAt, Date updatedAt, List<Role> roles) {
 		this.token = token;
 		this.id = id;
 		this.name = name;

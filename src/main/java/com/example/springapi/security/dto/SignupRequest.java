@@ -34,7 +34,7 @@ public class SignupRequest {
      private Date updatedAt;
  
      private String username;
-	private Set<String> role;
+	private Set<String> roles;
 //	public SignupRequest() {
 //		super();
 //	}
@@ -71,10 +71,10 @@ public class SignupRequest {
 		this.password = password;
 	}
 	public Set<String> getRole() {
-		return role;
+		return roles;
 	}
 	public void setRole(Set<String> role) {
-		this.role = role;
+		this.roles = role;
 	}
 	
 	
