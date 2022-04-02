@@ -35,11 +35,11 @@
 			<artifactId>spring-boot-starter-validation</artifactId>
 			<version>2.6.4</version>
 		</dependency>
-		<!-- Auto refresh -->
-		<dependency>
+	<!-- 	Auto refresh -->
+ <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
-			<optional>true</optional>
+			<optional>provided</optional>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
