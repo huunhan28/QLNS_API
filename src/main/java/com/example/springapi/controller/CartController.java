@@ -44,7 +44,7 @@ public class CartController {
 	}
 
     @GetMapping("/product/{id}")
-	ResponseEntity<ResponseObject> getCartFollowProduct(@PathVariable Long id){
+	ResponseEntity<ResponseObject> getCartFollowProduct(@PathVariable int id){
         Optional<Product> foundProduct = productResponsitory.findById(id);
         
 		Optional<Cart> foundCart = cartResponsitory.findByProduct(foundProduct.get());
@@ -59,7 +59,7 @@ public class CartController {
 	}
 
 	@GetMapping("/user/{id}")
-	List<Cart> getAllCartsFollowUser(@PathVariable Long id){
+	List<Cart> getAllCartsFollowUser(@PathVariable int id){
 		return cartResponsitory.findAllByUserId(id);
 	}
 

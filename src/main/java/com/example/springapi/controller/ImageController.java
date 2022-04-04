@@ -43,7 +43,7 @@ public class ImageController {
 	}
 
     @GetMapping("/{id}")
-	ResponseEntity<ResponseObject> getImage(@PathVariable Long id){
+	ResponseEntity<ResponseObject> getImage(@PathVariable int id){
 		Optional<Image> foundImage = responsitory.findById(id);
 		if(foundImage.isPresent()) {
 			return ResponseEntity.status(HttpStatus.OK).body(
@@ -70,7 +70,7 @@ public class ImageController {
     //update
     //update, upsert = update if found, otherwise insert
     @PutMapping("/{id}")
-    ResponseEntity<ResponseObject> updateImage(@RequestBody ImageDTO imageDTO, @PathVariable Long id) {
+    ResponseEntity<ResponseObject> updateImage(@RequestBody ImageDTO imageDTO, @PathVariable int id) {
         Optional<Product> p=productResponsitory.findById(imageDTO.getProductId());
         Image newImage =new Image(p.get(),imageDTO.getLink());
 
@@ -90,7 +90,7 @@ public class ImageController {
 
     //Delete a Image => DELETE method
     @DeleteMapping("/{id}")
-    ResponseEntity<ResponseObject> deleteImage(@PathVariable Long id) {
+    ResponseEntity<ResponseObject> deleteImage(@PathVariable int id) {
         boolean exists = responsitory.existsById( id);
         if(exists) {
             responsitory.deleteById( id);

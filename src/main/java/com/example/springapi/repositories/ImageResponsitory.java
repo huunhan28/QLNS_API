@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ImageResponsitory extends JpaRepository<Image, Long> {
+public interface ImageResponsitory extends JpaRepository<Image, Integer> {
 
     List<Image> findByLink(String link);
     

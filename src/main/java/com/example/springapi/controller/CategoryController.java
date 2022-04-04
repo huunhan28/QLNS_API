@@ -67,7 +67,7 @@ public class CategoryController {
     }
     //update, upsert = update if found, otherwise insert
     @PutMapping("/{id}")
-    ResponseEntity<ResponseObject> updateCategory(@RequestBody Category newCategory, @PathVariable Long id) {
+    ResponseEntity<ResponseObject> updateCategory(@RequestBody Category newCategory, @PathVariable int id) {
         Category updatedCategory = responsitory.findById(id)
                 .map(category -> {
                     category.setName(newCategory.getName());
@@ -83,7 +83,7 @@ public class CategoryController {
     }
     //Delete a Category => DELETE method
     @DeleteMapping("/{id}")
-    ResponseEntity<ResponseObject> deleteCategory(@PathVariable Long id) {
+    ResponseEntity<ResponseObject> deleteCategory(@PathVariable int id) {
         boolean exists = responsitory.existsById( id);
         if(exists) {
             responsitory.deleteById( id);
