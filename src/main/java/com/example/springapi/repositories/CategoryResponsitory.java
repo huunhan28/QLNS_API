@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.example.springapi.models.Category;
 
 @Repository
-public interface CategoryResponsitory extends JpaRepository<Category, Long>{
+public interface CategoryResponsitory extends JpaRepository<Category, Integer>{
 
     List<Category> findByName(String name);
 

@@ -39,7 +39,7 @@ public class ProductController {
 	}
 	
 	@GetMapping("/{id}")
-	ResponseEntity<ResponseObject> getProduct(@PathVariable Long id){
+	ResponseEntity<ResponseObject> getProduct(@PathVariable int id){
 		Optional<Product> foundProduct = responsitory.findById(id);
 		if(foundProduct.isPresent()) {
 			return ResponseEntity.status(HttpStatus.OK).body(
@@ -48,6 +48,12 @@ public class ProductController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
 						new ResponseObject("failed", "Can not find product with id=" + id, ""));
 		}
+        
+	}
+    @GetMapping("category/{id}")
+	List<Product> getProductByCategory(@PathVariable int id){
+        Optional<Category> category=categoryResponsitory.findById(id);
+		return responsitory.findAllByCategory(category.get());
         
 	}
 	//insert new Product with POST method
@@ -83,7 +89,7 @@ public class ProductController {
     }
 	//update, upsert = update if found, otherwise insert
     @PutMapping("/{id}")
-    ResponseEntity<ResponseObject> updateProduct(@RequestBody ProductDTO newProductDTO, @PathVariable Long id) {
+    ResponseEntity<ResponseObject> updateProduct(@RequestBody ProductDTO newProductDTO, @PathVariable int id) {
         Optional<Category> category=categoryResponsitory.findById(newProductDTO.getCategoryId());
         Product newProduct=new Product(newProductDTO.getProductId(),
                                         category.isPresent() ? category.get(): null,
@@ -125,7 +131,7 @@ public class ProductController {
     }
 	//Delete a Product => DELETE method
     @DeleteMapping("/{id}")
-    ResponseEntity<ResponseObject> deleteProduct(@PathVariable Long id) {
+    ResponseEntity<ResponseObject> deleteProduct(@PathVariable int id) {
         boolean exists = responsitory.existsById( id);
         if(exists) {
             responsitory.deleteById( id);
