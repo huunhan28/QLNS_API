@@ -3,6 +3,7 @@ package com.example.springapi.models;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -19,6 +20,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.ForeignKey;
 import com.example.springapi.security.entity.User;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,36 +29,40 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 @Entity
-@Table(name="cart")@IdClass(CartKey.class)
+@Table(name="cart")
+// @IdClass(CartKey.class)
 public class Cart {
-    @Id
+    @EmbeddedId
+	private CartKey id;
 	// @ManyToOne
 	// @JoinColumn(name="id")
 	@ManyToOne
-	@MapsId("id")
-	@JoinColumn(
-			name = "user_id",
-			foreignKey = @ForeignKey(
-					name = "fk_cartuser"
-					)
-			) 
+	// @MapsId("id")
+	// @JoinColumn(
+	// 		name = "user_id",
+	// 		foreignKey = @ForeignKey(
+	// 				name = "fk_cartuser"
+	// 				)
+	// 		) 
+	@MapsId("userId")
 	private User user;
 	
-	@Id
-	// @ManyToOne
-	// @JoinColumn(name = "productId")
+	// @Id
 	@ManyToOne
+	// // @JoinColumn(name = "productId")
+	// @ManyToOne
+	// @MapsId("productId")
+	// @JoinColumn(
+	// 		name = "product_id",
+	// 		foreignKey = @ForeignKey(
+	// 				name = "fk_cartproduct"
+	// 				)
+	// 		) 
 	@MapsId("productId")
-	@JoinColumn(
-			name = "product_id",
-			foreignKey = @ForeignKey(
-					name = "fk_cartproduct"
-					)
-			) 
 	private Product product;
 
     private int quantity;
-
-
+	
 }

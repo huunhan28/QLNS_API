@@ -123,7 +123,7 @@ public class ProductController {
 					product.setYear(newProductDTO.getYear());
                     return responsitory.save(product);
                 }).orElseGet(() -> {
-                    newProduct.setProductId((long)id);
+                    newProduct.setProductId(id);
                     return responsitory.save(newProduct);
                 });
         return ResponseEntity.status(HttpStatus.OK).body(

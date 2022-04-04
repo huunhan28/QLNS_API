@@ -38,7 +38,7 @@ public class Order  {
     @Id
     @Column(name = "order_id",insertable = false,updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private int id;
 
     @ManyToOne
 	@JoinColumn(name = "user_id")

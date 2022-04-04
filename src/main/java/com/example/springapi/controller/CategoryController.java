@@ -41,7 +41,7 @@ public class CategoryController {
 	
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<ResponseObject> getCategory(@PathVariable Long id){
+	public ResponseEntity<ResponseObject> getCategory(@PathVariable int id){
 		Optional<Category> cateOptional = responsitory.findById(id);
 		if(cateOptional.isPresent()) {
 			return AppUtils.returnJS(HttpStatus.OK, "Ok", "Get category successfully", cateOptional.get());
@@ -74,7 +74,7 @@ public class CategoryController {
                     category.setDescription(newCategory.getDescription());
                     return responsitory.save(category);
                 }).orElseGet(() -> {
-                    newCategory.setId((long)id);
+                    newCategory.setId(id);
                     return responsitory.save(newCategory);
                 });
         return ResponseEntity.status(HttpStatus.OK).body(
