@@ -1,15 +1,21 @@
 package com.example.springapi.models;
 
-import java.util.Collection;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.hibernate.FetchMode;
+import javax.persistence.FetchType;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -36,8 +42,9 @@ public class Category {
 	@Column(name = "description")
 	private String description;
 
-	// @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
-	// private Collection<Product> product;
+//	@JsonIgnore
+	 @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "category")
+	 private Set<Product> products;
 
 
 	

@@ -13,5 +13,10 @@ public interface ProductResponsitory extends JpaRepository<Product, Long> {
 	Optional<Product> findByProductId(int id);
 
     List<Product> findByName(String name);
+    
+
+	List<Product> findFirst10ByOrderByName();
+	
+	List<Product> findProductsByName(String name);
 	
 }

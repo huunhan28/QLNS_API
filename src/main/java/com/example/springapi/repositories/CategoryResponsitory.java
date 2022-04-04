@@ -12,8 +12,7 @@ import com.example.springapi.models.Category;
 public interface CategoryResponsitory extends JpaRepository<Category, Long>{
 
     List<Category> findByName(String name);
-
-    Optional<Category> findById(int id);
+    Optional<Category> findById(Long id);
 
 	
 }

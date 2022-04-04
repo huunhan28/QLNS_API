@@ -1,6 +1,7 @@
 package com.example.springapi.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.springapi.apputil.AppUtils;
 import com.example.springapi.models.Category;
 import com.example.springapi.models.ResponseObject;
 import com.example.springapi.repositories.CategoryResponsitory;
@@ -29,7 +31,24 @@ public class CategoryController {
 	List<Category> getAllCategorys(){
 		return responsitory.findAll();
 	}
+	
+	@GetMapping("/v2")
+	List<Category> getAllCategories(){
+		return responsitory.findAll();
+	}
+	
 
+	
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<ResponseObject> getCategory(@PathVariable Long id){
+		Optional<Category> cateOptional = responsitory.findById(id);
+		if(cateOptional.isPresent()) {
+			return AppUtils.returnJS(HttpStatus.OK, "Ok", "Get category successfully", cateOptional.get());
+		}else {
+			return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Category dont exist (by id)", null);
+		}
+	}
 	//insert new Category with POST method
     //Postman : Raw, JSON
     @PostMapping("/insert")

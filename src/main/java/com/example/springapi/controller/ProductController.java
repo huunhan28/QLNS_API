@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.springapi.apputil.AppUtils;
 import com.example.springapi.dto.ProductDTO;
 import com.example.springapi.models.Category;
 import com.example.springapi.models.Product;
@@ -138,5 +139,29 @@ public class ProductController {
         );
     }
 	
+    
+    @GetMapping("/top10")
+    public List<Product> getTop10Products(){
+    	List<Product> list = null;
+    	try {
+    		list = responsitory.findFirst10ByOrderByName();
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+    	return list;
+    }
+    
+    @GetMapping("/searchProductsByName/{productName}")
+    public ResponseEntity<ResponseObject> searchProductsByName(@PathVariable("productName") String productName){
+    	List<Product> products = responsitory.findProductsByName(productName);
+    	if(products==null || products.size()==0) {
+    		return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Dont have any product matches name", null);
+    		
+    	}else {
+    		return AppUtils.returnJS(HttpStatus.OK, "Ok", "Search by name product successfully", products);
+    	}
+    }
+    
 
 }
