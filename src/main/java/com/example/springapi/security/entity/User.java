@@ -1,9 +1,12 @@
 package com.example.springapi.security.entity;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -13,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
@@ -20,7 +24,11 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
+import com.example.springapi.models.Cart;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,6 +36,8 @@ import lombok.Setter;
 @Getter
 @Setter
 
+
+@EqualsAndHashCode
 @NoArgsConstructor
 @Entity
 @Table(name = "user", uniqueConstraints = { @UniqueConstraint(columnNames = "username"),
@@ -36,7 +46,7 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 
-	private Long id;
+	private int id;
 
 	@NotBlank
 	private String name;
@@ -75,7 +85,13 @@ public class User {
 	// public User() {
 	// }
 
-	
+
+	// @OneToMany(
+    //     mappedBy = "user",
+    //     cascade = CascadeType.ALL,
+    //     orphanRemoval = true
+    // )
+    // private List<Cart> carts = new ArrayList<>();
 
 	public String getAddress() {
 		return address;
@@ -85,11 +101,11 @@ public class User {
 		this.address = address;
 	}
 
-	public Long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
@@ -127,7 +143,7 @@ public class User {
 
 	
 
-	public User(Long id, @NotBlank String name, String email, String username, String address, String rememberToken,
+	public User(int id, @NotBlank String name, String email, String username, String address, String rememberToken,
 			Date createdAt, Date updatedAt, Set<Role> roles) {
 		this.id = id;
 		this.name = name;
@@ -142,7 +158,7 @@ public class User {
 
 	
 
-	public User(Long id, @NotBlank String name, String email, String username, String address, String rememberToken,
+	public User(int id, @NotBlank String name, String email, String username, String address, String rememberToken,
 			Date createdAt, Date updatedAt, String password) {
 		this.id = id;
 		this.name = name;
@@ -155,7 +171,7 @@ public class User {
 		this.password = password;
 	}
 
-	public User(Long id, String newPassword){
+	public User(int id, String newPassword){
 		this.id = id;
 		this.password = newPassword;
 	}

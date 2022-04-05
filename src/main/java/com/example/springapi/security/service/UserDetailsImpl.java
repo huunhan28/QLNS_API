@@ -26,7 +26,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
-    private long id;
+    private int id;
     
     private String name;
 
@@ -75,7 +75,7 @@ public class UserDetailsImpl implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
        return authorities;
     }
-    public Long getId() {
+    public int getId() {
        return id;
     }
     public String getEmail() {

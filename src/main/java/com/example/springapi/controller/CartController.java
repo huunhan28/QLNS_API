@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.example.springapi.dto.CartDTO;
 import com.example.springapi.models.Cart;
+import com.example.springapi.models.CartKey;
 import com.example.springapi.models.Discount;
 import com.example.springapi.models.Product;
 import com.example.springapi.models.ResponseObject;
@@ -47,14 +48,15 @@ public class CartController {
 	ResponseEntity<ResponseObject> getCartFollowProduct(@PathVariable int id){
         Optional<Product> foundProduct = productResponsitory.findById(id);
         
-		Optional<Cart> foundCart = cartResponsitory.findByProduct(foundProduct.get());
-		if(foundCart.isPresent()) {
-			return ResponseEntity.status(HttpStatus.OK).body(
-					new ResponseObject("ok", "Query cart sucessfully", foundCart));
-		}else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-						new ResponseObject("failed", "Can not find cart with id=" + id, ""));
-		}
+		// Optional<Cart> foundCart = cartResponsitory.findByProduct(foundProduct.get());
+		return null;
+		// if(foundCart.isPresent()) {
+		// 	return ResponseEntity.status(HttpStatus.OK).body(
+		// 			new ResponseObject("ok", "Query cart sucessfully", foundCart));
+		// }else {
+		// 	return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+		// 				new ResponseObject("failed", "Can not find cart with id=" + id, ""));
+		// }
         
 	}
 
@@ -68,11 +70,10 @@ public class CartController {
     @PostMapping("/insert")
     ResponseEntity<ResponseObject> insertOrderDetail(@RequestBody CartDTO newCartDTO) {
         
-        User user=userResponsitory.getById(newCartDTO.getUserId());
-        Product product=productResponsitory.getById(newCartDTO.getProductId());
-        Cart newCart=new Cart(
-								user,
-								product,
+        Optional<User> user=userResponsitory.findById(newCartDTO.getUserId());
+        Optional<Product> product=productResponsitory.findById(newCartDTO.getProductId());
+        Cart newCart=new Cart(	new CartKey(user.get().getId(), product.get().getId()), user.get(),
+								product.get(),
 								newCartDTO.getQuantity());
         return ResponseEntity.status(HttpStatus.OK).body(
            new ResponseObject("ok", "Insert OrderDetail successfully", cartResponsitory.save(newCart))

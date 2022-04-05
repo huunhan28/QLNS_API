@@ -1,6 +1,8 @@
 package com.example.springapi.models;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -10,6 +12,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -19,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,6 +32,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 @Entity
 @Table(name="Product")
 public class Product {
@@ -34,7 +40,7 @@ public class Product {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "product_id")
-	private long productId;
+	private int productId;
 
 	@JsonIgnore
 	@ManyToOne
@@ -62,7 +68,18 @@ public class Product {
 	@OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
 	private Collection<Image> images;
 
-	public Product(long productId, Category category, String name, float price, String calculationUnit, int total,
+    // @OneToMany(
+    //     mappedBy = "product",
+    //     cascade = CascadeType.ALL,
+    //     orphanRemoval = true
+    // )
+    // private List<Cart> carts = new ArrayList<>();
+
+
+
+
+
+	public Product(int productId, Category category, String name, float price, String calculationUnit, int total,
 			String description, String slug, boolean display, float rate, float discount, int id, String url, int year) {
 		this.productId = productId;
 		this.category = category;
