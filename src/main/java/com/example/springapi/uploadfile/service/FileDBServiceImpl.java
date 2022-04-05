@@ -19,9 +19,9 @@ public class FileDBServiceImpl implements FileDBService {
 	FileDBRepository fileDBRepository;
 
 	@Override
-	public FileDB store(MultipartFile file) throws IOException {
+	public FileDB store(MultipartFile file, String url) throws IOException {
 		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-		FileDB fileDB = new FileDB(fileName, file.getContentType(), file.getBytes());
+		FileDB fileDB = new FileDB(fileName, file.getContentType(), file.getBytes(), url);
 		return fileDBRepository.save(fileDB);
 	}
 
@@ -35,6 +35,26 @@ public class FileDBServiceImpl implements FileDBService {
 	public Optional<FileDB> findById(int id) {
 		// TODO Auto-generated method stub
 		return fileDBRepository.findById(id);
+	}
+
+	@Override
+	public Optional<FileDB> findByName(String name) {
+		// TODO Auto-generated method stub
+		return fileDBRepository.findByName(name);
+	}
+
+	@Override
+	public FileDB updateFileDB(MultipartFile file, String url, FileDB oldFileDB) {
+		// TODO Auto-generated method stub
+		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+		FileDB fileDB = null;
+		try {
+			fileDB = new FileDB(oldFileDB.getId(), fileName, file.getContentType(), file.getBytes(), url);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return fileDBRepository.save(fileDB);
 	}
 	
 	

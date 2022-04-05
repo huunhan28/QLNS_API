@@ -2,7 +2,13 @@ package com.example.springapi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
+import com.example.springapi.uploadfile.newupload.FileStorageProperties;
+
+@EnableConfigurationProperties({
+    FileStorageProperties.class
+})
 @SpringBootApplication
 public class SpringapiApplication {
 
