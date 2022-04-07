@@ -13,6 +13,8 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.GeneratorType;
 
+import com.example.springapi.models.Category;
+import com.example.springapi.models.Discount;
 import com.example.springapi.models.Product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -48,6 +50,14 @@ public class FileDB{
     @OneToMany(mappedBy = "image", fetch = FetchType.LAZY)
     private Collection<Product> products;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "imageDiscount", fetch = FetchType.LAZY)
+    private Collection<Discount> discounts;
+    
+    @JsonIgnore
+    @OneToMany(mappedBy = "imageCategory", fetch = FetchType.LAZY)
+    private Collection<Category> categories;
+    
     public FileDB(String name, String type, byte[] data, String link) {
         this.name = name;
         this.data = data;

@@ -8,12 +8,15 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.FetchMode;
 import javax.persistence.FetchType;
 
+import com.example.springapi.uploadfile.model.FileDB;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -42,9 +45,13 @@ public class Category {
 	@Column(name = "description")
 	private String description;
 
-//	@JsonIgnore
+	@JsonIgnore
 	 @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "category")
 	 private Set<Product> products;
+	
+	@ManyToOne
+	@JoinColumn(name = "image_id")
+	private FileDB imageCategory;
 
 
 	

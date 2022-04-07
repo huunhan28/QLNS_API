@@ -41,6 +41,13 @@
 			<artifactId>spring-boot-devtools</artifactId>
 			<optional>provided</optional>
 		</dependency>
+		
+		<!-- Model mapper convert model to dto -->
+		<dependency>
+    <groupId>org.modelmapper</groupId>
+    <artifactId>modelmapper</artifactId>
+    <version>2.3.5</version>
+</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
