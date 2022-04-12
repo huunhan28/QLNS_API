@@ -1,8 +1,8 @@
 package com.example.springapi.models;
 import java.io.Serializable;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -20,33 +20,35 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="order_detail")@IdClass(OrderDetailKey.class)
+@Table(name="order_detail")
+// @IdClass(OrderDetailKey.class)
 public class OrderDetail{
 	
-    @Id
+    
+	@EmbeddedId
+	private OrderDetailKey id;
 	// @ManyToOne
 	// @JoinColumn(name="order_id")
 	@ManyToOne
-	@MapsId("id")
-	@JoinColumn(
-			name = "order_id",
-			foreignKey = @ForeignKey(
-					name = "fk_orderdetail_order"
-					)
-			) 
-	private Order order;
+	@MapsId("orderId")
+	// @JoinColumn(
+	// 		name = "order_id",
+	// 		foreignKey = @ForeignKey(
+	// 				name = "fk_orderdetail_order"
+	// 				)
+	// 		) 
+	private Orders order;
 	
-	@Id
 	// @ManyToOne
 	// @JoinColumn(name = "product_id")
 	@ManyToOne
 	@MapsId("productId")
-	@JoinColumn(
-			name = "product_id",
-			foreignKey = @ForeignKey(
-					name = "fk_orderdetail_product"
-					)
-			)
+	// @JoinColumn(
+	// 		name = "product_id",
+	// 		foreignKey = @ForeignKey(
+	// 				name = "fk_orderdetail_product"
+	// 				)
+	// 		)
 	private Product product;
 
     private int quantity;
@@ -54,6 +56,14 @@ public class OrderDetail{
     private float price;
 
     private float discount;
+
+	public OrderDetail(Orders order, Product product, int quantity, float price, float discount) {
+		this.order = order;
+		this.product = product;
+		this.quantity = quantity;
+		this.price = price;
+		this.discount = discount;
+	}
 
 
 }

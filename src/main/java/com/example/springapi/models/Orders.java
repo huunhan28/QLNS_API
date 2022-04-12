@@ -16,11 +16,17 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Null;
 import javax.persistence.ForeignKey;
 import javax.persistence.MapsId;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.example.springapi.security.entity.User;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,11 +38,13 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="order")
-public class Order  {
+@Table(name="orders")
+public class Orders  {
+
+    
 
     @Id
-    @Column(name = "order_id",insertable = false,updatable = false)
+    @Column(name = "order_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
@@ -53,6 +61,7 @@ public class Order  {
 	// @JoinColumn(name = "id")
     @ManyToOne
 	@MapsId("id")
+    @Null
 	@JoinColumn(
 			name = "discount_id",
 			foreignKey = @ForeignKey(
@@ -62,6 +71,13 @@ public class Order  {
     private Discount discount;
 
     private String state;
+
+    public Orders(User user, Date createAt, Discount discount, String state) {
+        this.user = user;
+        this.createAt = createAt;
+        this.discount = discount;
+        this.state = state;
+    }
 
     
 }
