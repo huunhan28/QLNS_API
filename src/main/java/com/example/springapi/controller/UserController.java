@@ -1,11 +1,15 @@
 package com.example.springapi.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -25,11 +29,14 @@ import com.example.springapi.security.repository.UserRepository;
 import com.example.springapi.service.UploadFileService;
 import com.example.springapi.uploadfile.model.FileDB;
 
+
+
 @RestController
 @RequestMapping(value = "/api/v1/Users/")
 public class UserController {
 	
-
+	@Autowired
+    public JavaMailSender emailSender;
 	
 	@Autowired
 	UploadFileService uploadFileService;
@@ -49,6 +56,43 @@ public class UserController {
 			return AppUtils.returnJS(HttpStatus.OK, "Ok", "Find user success fully", user.get());
 		}else {
 			return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Not exist this username", user.get());
+		}
+	}
+
+	@ResponseBody
+	@GetMapping("email/{email}")
+	public ResponseEntity<ResponseObject> getOTPByEmail(@PathVariable("email") String email){
+		Optional<User> user = userRepository.findByEmail(email);
+		if(user.isPresent()){
+			// Create a Simple MailMessage.
+			SimpleMailMessage message = new SimpleMailMessage();
+					
+			message.setTo(email);
+			message.setSubject("Organic Food");
+
+			//Tao OTP
+			ArrayList<String> around = new ArrayList<>();
+			String[] arrCode = new String[5];
+			for(int i= 0; i<=9; i++){
+				Integer tam = new Integer(i);
+				around.add(tam.toString());
+			}
+			Random rand = new Random();
+			String randomOTP = "";
+			for(int i =0; i< 5; i++){
+				int randomInt = rand.nextInt(9);
+				arrCode[i] = around.get(randomInt);
+				System.out.println(arrCode[i]);
+				randomOTP+=arrCode[i];
+			}
+
+			message.setText("OTP cua ban la: "+randomOTP);
+
+			// Send Message!
+			this.emailSender.send(message);
+			return AppUtils.returnJS(HttpStatus.OK, "OK", "Get OTP successfully", randomOTP);
+		}else{
+			return AppUtils.returnJS(HttpStatus.NOT_FOUND, "OK", "Email khong ton tai", "");
 		}
 	}
 	
