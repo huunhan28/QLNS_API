@@ -29,6 +29,7 @@ import com.example.springapi.models.ResponseObject;
 import com.example.springapi.repositories.CategoryResponsitory;
 import com.example.springapi.requestmodel.CategoryRequest;
 import com.example.springapi.service.CategoryDTOService;
+import com.example.springapi.service.UploadFileService;
 import com.example.springapi.uploadfile.model.FileDB;
 import com.example.springapi.uploadfile.newupload.FileController;
 import com.example.springapi.uploadfile.newupload.FileStorageService;
@@ -39,19 +40,10 @@ import com.example.springapi.uploadfile.service.FileDBService;
 @RequestMapping(path ="/api/v1/Categories")
 public class CategoryController {
 
-	private static final Logger logger = LoggerFactory.getLogger(FileController.class);
-//	private final String url = "api/auth/files/";
 	
-	private final String url = "images/uploads/";
-
 	@Autowired
-	FileStorageService fileStorageService;
-
-	@Autowired
-	FileDBRepository fileDBRepository;
-
-	@Autowired
-	FileDBService fileDBService;
+	UploadFileService uploadFileService;
+	
 	@Autowired
 	CategoryResponsitory responsitory;
 	
@@ -103,6 +95,7 @@ public class CategoryController {
     })
     ResponseEntity<ResponseObject> insertCategoryWithImage(@RequestPart("file") MultipartFile file,@RequestPart("category") CategoryRequest newCategory) {
         //2 categories must not have the same name !
+    	System.out.println("Voa insert");
         List<Category> foundCategories = responsitory.findByName(newCategory.getName().trim());
        
         if(foundCategories.size() > 0) {
@@ -110,37 +103,9 @@ public class CategoryController {
                 new ResponseObject("failed", "Category name already taken", "")
             );
         }
-        
-        String message = "";
-		String fileName = fileStorageService.storeFile(file);
-		
-
-		String fileDownloadUri = ServletUriComponentsBuilder
-				.fromCurrentContextPath()
-				.path(url)
-				.path(fileName)
-				.toUriString();
-		
-		Optional<FileDB> optionalFile = fileDBRepository.findByName(fileName);
-		FileDB fileDB;
-		try {
-			
-			if (optionalFile.isPresent()) {// update new file
-				fileDB = fileDBService.updateFileDB(file, fileDownloadUri, optionalFile.get());
-				message = "Updated file successfully: " + file.getOriginalFilename();
-
-			} else {
-				fileDB = fileDBService.store(file, fileDownloadUri);
-				message = "Uploaded file successfully: " + file.getOriginalFilename();
-			}
-			
-		} catch (
-
-		Exception e) {
-			// TODO: handle exception
-			message = "upload file category failed";
-			return AppUtils.returnJS(HttpStatus.NOT_IMPLEMENTED, "Failed", message, null);
-		}
+        System.out.println("truoc ep kieu");
+      FileDB fileDB = uploadFileService.uploadFileToLocalAndDB(file);
+      System.out.println("sau ep kieu");
 		Category category =new Category();
 		category.setImageCategory(fileDB);
 		category.setName(newCategory.getName());
@@ -151,9 +116,39 @@ public class CategoryController {
            new ResponseObject("ok", "Insert Category successfully", responsitory.save(category))
         );
     }
+    
+    @PostMapping(value = "/insert/v3",consumes = {
+    		MediaType.MULTIPART_FORM_DATA_VALUE
+    })
+    ResponseEntity<ResponseObject> insertCategoryWithImageVer3(@RequestBody CategoryRequest newCategory) {
+        //2 categories must not have the same name !
+    	System.out.println("Voa insert");
+        List<Category> foundCategories = responsitory.findByName(newCategory.getName().trim());
+       
+        if(foundCategories.size() > 0) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+                new ResponseObject("failed", "Category name already taken", "")
+            );
+        }
+        System.out.println("truoc ep kieu");
+      FileDB fileDB = uploadFileService.uploadFileToLocalAndDB(newCategory.getImageCategory());
+      System.out.println("sau ep kieu");
+		Category category =new Category();
+		category.setImageCategory(fileDB);
+		category.setName(newCategory.getName());
+		category.setDescription(newCategory.getDescription());
+		
+		
+        return ResponseEntity.status(HttpStatus.OK).body(
+           new ResponseObject("ok", "Insert Category successfully", responsitory.save(category))
+        );
+    }
+    
+    
     //update, upsert = update if found, otherwise insert
     @PutMapping("/{id}")
     ResponseEntity<ResponseObject> updateCategory(@RequestBody Category newCategory, @PathVariable int id) {
+    	System.out.println("new category update:" + newCategory.getDescription() + newCategory.getName());
         Category updatedCategory = responsitory.findById(id)
                 .map(category -> {
                     category.setName(newCategory.getName());

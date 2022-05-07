@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,6 +30,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.springapi.apputil.AppUtils;
 import com.example.springapi.models.ResponseObject;
+import com.example.springapi.service.QueryMySql;
 import com.example.springapi.uploadfile.model.FileDB;
 import com.example.springapi.uploadfile.newupload.FileController;
 import com.example.springapi.uploadfile.newupload.FileStorageService;
@@ -54,6 +56,14 @@ public class FileDBController {
 
 	@Autowired
 	FileDBService fileDBService;
+	
+	@Autowired
+	QueryMySql<Object> mysql;
+	
+	@PutMapping("/updateLink")
+	public void updateLinkImage(@RequestParam String address) {
+		mysql.updateLinkImage(address);
+	}
 
 	@PostMapping("/upload")
 	public ResponseEntity<ResponseObject> uploadFile(@RequestParam MultipartFile file) {

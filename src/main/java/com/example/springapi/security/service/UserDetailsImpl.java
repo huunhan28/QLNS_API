@@ -13,6 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.springapi.security.entity.User;
+import com.example.springapi.uploadfile.model.FileDB;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
@@ -41,11 +42,15 @@ public class UserDetailsImpl implements UserDetails {
     private Date createdAt;
 
     private Date updatedAt;
-
-   //  private String username;
+    
+   
     @JsonIgnore
     private String password;
+
+
     private Collection<? extends GrantedAuthority> authorities;
+    
+    private FileDB imageUser;
 //    public UserDetailsImpl(Long id, String username, String email, String password, String address,
 //           Collection<? extends GrantedAuthority> authorities) {
 //        this.id = id;
@@ -69,7 +74,9 @@ public class UserDetailsImpl implements UserDetails {
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
                user.getPassword(),
-               authorities);
+               authorities,
+
+               user.getImageUser());
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

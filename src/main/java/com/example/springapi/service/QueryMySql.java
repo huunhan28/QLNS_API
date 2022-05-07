@@ -25,7 +25,11 @@ public class QueryMySql<T> {
 		int result = jdbcTemplate.update(sql, args);
 		return result > 0;
 	}
-
+	
+	public void updateLinkImage(String address) {
+		int result = jdbcTemplate.update("update file_db set link=CONCAT('http://"+ address + "/images/uploads/',name)");
+	}
+	
 	public List<T> select(String type,String sql,  Object[]args) {
 		if (type.equals(CategoryDTO.class.getName())) {
 			List<CategoryDTO> categoryDTOs = jdbcTemplate.query(sql, args, new RowMapper<CategoryDTO>() {
