@@ -131,7 +131,7 @@ public class ProductController {
         );
     }
 	//Delete a Product => DELETE method
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     ResponseEntity<ResponseObject> deleteProduct(@PathVariable int id) {
         boolean exists = responsitory.existsById( id);
         if(exists) {

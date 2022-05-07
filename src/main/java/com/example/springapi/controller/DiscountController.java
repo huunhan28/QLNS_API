@@ -60,7 +60,18 @@ public class DiscountController {
     List<DiscountDTO> getDiscountDTOs(){
     	return discountDTORepository.getDiscounts();
     }
-
+	@GetMapping("/{id}")
+	ResponseEntity<ResponseObject> getDiscount(@PathVariable String id){
+		Optional<Discount> foundDiscount = responsitory.findById(id);
+		if(foundDiscount.isPresent()) {
+			return ResponseEntity.status(HttpStatus.OK).body(
+					new ResponseObject("ok", "Query product sucessfully", foundDiscount));
+		}else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+						new ResponseObject("failed", "Can not find Discount with id=" + id, ""));
+		}
+        
+	}
 	//insert new Discount with POST method
     //Postman : Raw, JSON
     @PostMapping("/insert")
