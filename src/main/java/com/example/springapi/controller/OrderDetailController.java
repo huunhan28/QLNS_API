@@ -1,8 +1,11 @@
 package com.example.springapi.controller;
 
+import java.util.Optional;
+
 import com.example.springapi.dto.OrderDetailDTO;
-import com.example.springapi.models.Order;
+import com.example.springapi.models.Orders;
 import com.example.springapi.models.OrderDetail;
+import com.example.springapi.models.OrderDetailKey;
 import com.example.springapi.models.Product;
 import com.example.springapi.models.ResponseObject;
 import com.example.springapi.repositories.OrderDetailResponsitory;
@@ -35,12 +38,14 @@ public class OrderDetailController {
     //Postman : Raw, JSON
     @PostMapping("/insert")
     ResponseEntity<ResponseObject> insertOrderDetail(@RequestBody OrderDetailDTO newOrderDetailDTO) {
-        
-        Order order=orderResponsitory.getById(newOrderDetailDTO.getOrderId());
-        Product product=productResponsitory.getById(newOrderDetailDTO.getProductId());
-        OrderDetail newOrderDetail=new OrderDetail(
-                                                    order,
-                                                    product,
+        Optional<Orders> order=orderResponsitory.findById(newOrderDetailDTO.getOrderId());
+        System.out.println(order.get().getId());
+        Optional<Product> product=productResponsitory.findById(newOrderDetailDTO.getProductId());
+        OrderDetail newOrderDetail=new OrderDetail(new OrderDetailKey(
+                                                                        order.get().getId(),
+                                                                        product.get().getId()),
+                                                    order.get(),
+                                                    product.get(),
                                                     newOrderDetailDTO.getQuantity(),
                                                     newOrderDetailDTO.getPrice(),
                                                     newOrderDetailDTO.getDiscount());
@@ -48,4 +53,18 @@ public class OrderDetailController {
            new ResponseObject("ok", "Insert OrderDetail successfully", orderDetailResponsitory.save(newOrderDetail))
         );
     }
+
+    // @PostMapping("/insert")
+    // ResponseEntity<ResponseObject> insertOrderDetail2(@RequestBody OrderDetailDTO newOrderDetailDTO) {
+        
+    //     Optional<Orders> order=orderResponsitory.findById(newOrderDetailDTO.getOrderId());
+    //     Optional<Product> product=productResponsitory.findById(newOrderDetailDTO.getProductId());
+    //     Cart newCart=new Cart(	new CartKey(user.get().getId(), product.get().getId()),
+    //                             user.get(),
+	// 							product.get(),
+	// 							newCartDTO.getQuantity());
+    //     return ResponseEntity.status(HttpStatus.OK).body(
+    //        new ResponseObject("ok", "Insert OrderDetail successfully", cartResponsitory.save(newCart))
+    //     );
+    // }
 }
