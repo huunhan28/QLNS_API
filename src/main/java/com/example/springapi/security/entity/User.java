@@ -16,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -25,6 +26,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
 import com.example.springapi.models.Cart;
+import com.example.springapi.uploadfile.model.FileDB;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
@@ -77,11 +79,18 @@ public class User {
 
 	// @NotBlank
 	private String password;
+	
 
 	// @NotEmpty
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
+	@ManyToOne
+	@JoinColumn(name = "image_id")
+	private FileDB imageUser;
+
+	
+	
 	// public User() {
 	// }
 
@@ -93,6 +102,8 @@ public class User {
     // )
     // private List<Cart> carts = new ArrayList<>();
 
+	
+	
 	public String getAddress() {
 		return address;
 	}
@@ -144,7 +155,7 @@ public class User {
 	
 
 	public User(int id, @NotBlank String name, String email, String username, String address, String rememberToken,
-			Date createdAt, Date updatedAt, Set<Role> roles) {
+			Date createdAt, Date updatedAt, Set<Role> roles) { // for sigin up
 		this.id = id;
 		this.name = name;
 		this.email = email;
@@ -159,7 +170,7 @@ public class User {
 	
 
 	public User(int id, @NotBlank String name, String email, String username, String address, String rememberToken,
-			Date createdAt, Date updatedAt, String password) {
+			Date createdAt, Date updatedAt, String password) { // for register
 		this.id = id;
 		this.name = name;
 		this.email = email;
@@ -176,10 +187,26 @@ public class User {
 		this.password = newPassword;
 	}
 
-	public User(String username, String name, String password) {
+	public User(String username, String name, String password) {// for login
 		this.username = username;
 		this.name = name;
 		this.password = password;
+	}
+
+	public User(int id, @NotBlank String name, String email, String username, String address, String rememberToken,
+			Date createdAt, Date updatedAt, String password, Set<Role> roles, FileDB imageUser) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.email = email;
+		this.username = username;
+		this.address = address;
+		this.rememberToken = rememberToken;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
+		this.password = password;
+		this.roles = roles;
+		this.imageUser = imageUser;
 	}
 
 }

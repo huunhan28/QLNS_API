@@ -11,6 +11,7 @@ import com.example.springapi.models.ResponseObject;
 import com.example.springapi.repositories.DiscountResponsitory;
 import com.example.springapi.requestmodel.DiscountRequest;
 import com.example.springapi.service.DiscountDTORepository;
+import com.example.springapi.service.UploadFileService;
 import com.example.springapi.uploadfile.model.FileDB;
 import com.example.springapi.uploadfile.newupload.FileController;
 import com.example.springapi.uploadfile.newupload.FileStorageService;
@@ -39,25 +40,16 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping(path ="/api/v1/Discounts")
 public class DiscountController {
     
+	@Autowired
+	UploadFileService uploadFileService;
+	
     @Autowired
 	DiscountResponsitory responsitory;
     
     @Autowired
     DiscountDTORepository discountDTORepository;
     
-    private static final Logger logger = LoggerFactory.getLogger(FileController.class);
-//	private final String url = "api/auth/files/"; for download resource image
-	
-	private final String url = "images/uploads/";// only view
 
-	@Autowired
-	FileStorageService fileStorageService;
-
-	@Autowired
-	FileDBRepository fileDBRepository;
-
-	@Autowired
-	FileDBService fileDBService;
 
     @GetMapping("")
 	List<Discount> getAllDiscounts(){
@@ -87,6 +79,8 @@ public class DiscountController {
     		@RequestPart("file") MultipartFile file
     		)
     {
+    	
+    	System.out.println("vao insert discount");
     
     	Optional<Discount> disOptional = responsitory.findById(discountRequest.getId());
     	 if(disOptional.isPresent()) {
@@ -94,37 +88,9 @@ public class DiscountController {
     	    			"Discount id have taken", null);
          }
     	 
-         
-         String message = "";
- 		String fileName = fileStorageService.storeFile(file);
- 		
-
- 		String fileDownloadUri = ServletUriComponentsBuilder
- 				.fromCurrentContextPath()
- 				.path(url)
- 				.path(fileName)
- 				.toUriString();
- 		
- 		Optional<FileDB> optionalFile = fileDBRepository.findByName(fileName);
- 		FileDB fileDB;
- 		try {
- 			
- 			if (optionalFile.isPresent()) {// update new file
- 				fileDB = fileDBService.updateFileDB(file, fileDownloadUri, optionalFile.get());
- 				message = "Updated file successfully: " + file.getOriginalFilename();
-
- 			} else {
- 				fileDB = fileDBService.store(file, fileDownloadUri);
- 				message = "Uploaded file successfully: " + file.getOriginalFilename();
- 			}
- 			
- 		} catch (
-
- 		Exception e) {
- 			// TODO: handle exception
- 			message = "upload file category failed";
- 			return AppUtils.returnJS(HttpStatus.NOT_IMPLEMENTED, "Failed", message, null);
- 		}
+         System.out.println("truoc khi ep kieu");
+       FileDB fileDB= uploadFileService.uploadFileToLocalAndDB(file);
+       System.out.println("sau khi ep kieu");
  		Discount discount=new Discount();
  		discount.setImageDiscount(fileDB);
  		discount.setId(discountRequest.getId());

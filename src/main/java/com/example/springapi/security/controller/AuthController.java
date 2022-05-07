@@ -91,7 +91,8 @@ public class AuthController {
 		return AppUtils.returnJS(HttpStatus.OK, "Ok", "Sign in successfully!",
 				new User(userDetails.getId(), userDetails.getName(), userDetails.getEmail(),
 						userDetails.getUsername(), userDetails.getAddress(),type+ " "+ jwt,
-						userDetails.getCreatedAt(), userDetails.getUpdatedAt(), roles));
+						userDetails.getCreatedAt(), userDetails.getUpdatedAt(),
+						userDetails.getPassword(), roles, userDetails.getImageUser()));
 
 	}
 

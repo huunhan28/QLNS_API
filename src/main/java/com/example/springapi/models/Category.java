@@ -53,6 +53,13 @@ public class Category {
 	@JoinColumn(name = "image_id")
 	private FileDB imageCategory;
 
+	@Override
+	public String toString() {
+		return "Category [id=" + id + ", name=" + name + ", description=" + description + ", products=" + products
+				+ ", imageCategory=" + imageCategory + "]";
+	}
+	
+	
 
 	
 }

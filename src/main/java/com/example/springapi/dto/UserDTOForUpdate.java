@@ -1,6 +1,8 @@
-package com.example.springapi.requestmodel;
+package com.example.springapi.dto;
 
 import org.springframework.web.multipart.MultipartFile;
+
+import com.example.springapi.uploadfile.model.FileDB;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,9 +13,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryRequest {
+public class UserDTOForUpdate {
 	private String name;
-	private String description;
-	private MultipartFile imageCategory;
+	private String email;
+	private String address;
 
 }
