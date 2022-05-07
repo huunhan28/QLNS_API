@@ -57,13 +57,5 @@ public class OrderDetail{
 
     private float discount;
 
-	public OrderDetail(Orders order, Product product, int quantity, float price, float discount) {
-		this.order = order;
-		this.product = product;
-		this.quantity = quantity;
-		this.price = price;
-		this.discount = discount;
-	}
-
 
 }

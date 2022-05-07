@@ -41,8 +41,10 @@ public class OrderDetailController {
         Optional<Orders> order=orderResponsitory.findById(newOrderDetailDTO.getOrderId());
         System.out.println(order.get().getId());
         Optional<Product> product=productResponsitory.findById(newOrderDetailDTO.getProductId());
+        
         OrderDetail newOrderDetail=new OrderDetail(new OrderDetailKey(
                                                                         order.get().getId(),
+                                                                        
                                                                         product.get().getId()),
                                                     order.get(),
                                                     product.get(),
