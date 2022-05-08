@@ -1,5 +1,7 @@
 package com.example.springapi.repositories;
 
+import java.util.List;
+
 import com.example.springapi.models.Orders;
 
 import java.util.Date;
@@ -10,7 +12,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OrderResponsitory extends JpaRepository<Orders, Integer>{
-    List<Orders> findAllByState(String state);
 
+    List<Orders> findAllByState(String state);
 	List<Orders> findAllByStateAndCreateAtBetween(String state, Date startDate, Date endDate);
+    List<Orders> findAllByUserId(int userId);
+    
+
 }

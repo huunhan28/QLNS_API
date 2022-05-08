@@ -170,6 +170,21 @@ public class UserController {
 	
 		
 	}
+
+	@PutMapping("email/{email}/password/{password}")
+    ResponseEntity<ResponseObject> updatePasswordByEmail(@PathVariable String email, @PathVariable String password) {
+    	
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+		if(!optionalUser.isPresent()) {
+			return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Email user not found", null);
+		}
+		User user = optionalUser.get();
+		user.setPassword(password);
+		userRepository.save(user);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("ok", "Update password successfully", "")
+        );
+    }
 	
 	
 

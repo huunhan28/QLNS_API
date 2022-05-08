@@ -45,6 +45,12 @@ public class OrderController {
 	List<Orders> getAllOrders(){
 		return orderResponsitory.findAll();
 	}
+
+    @GetMapping("user/{userId}")
+	List<Orders> getAllOrdersByUserId(@PathVariable int userId){
+		return orderResponsitory.findAllByUserId(userId);
+	}
+
     @GetMapping("/{id}")
 	ResponseEntity<ResponseObject> getProduct(@PathVariable int id){
 		Optional<Orders> findOrder = orderResponsitory.findById(id);
