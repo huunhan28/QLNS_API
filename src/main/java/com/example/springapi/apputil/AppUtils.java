@@ -1,5 +1,8 @@
 package com.example.springapi.apputil;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
@@ -37,5 +40,15 @@ public class AppUtils {
 
         }
         return errorMessage;
+    }
+    
+    public static Date stringToDate(String s, String pattern) {
+    	try {
+			return new SimpleDateFormat(pattern).parse(s);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return new Date(0, 0, 0);
+		}
     }
 }

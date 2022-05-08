@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.springapi.dto.CategoryDTO;
 import com.example.springapi.dto.DiscountDTO;
+import com.example.springapi.models.ProductReport;
 import com.example.springapi.uploadfile.model.FileDB;
 
 @Service
@@ -64,6 +65,22 @@ public class QueryMySql<T> {
 
 			});
 			return (List<T>) discountDTOs;
+		}
+		else if(type.equals(ProductReport.class.getName())) {
+			List<ProductReport> list = jdbcTemplate.query(sql, args, new RowMapper<ProductReport>() {
+
+				@Override
+				public ProductReport mapRow(ResultSet rs, int rowNum) throws SQLException {
+					// TODO Auto-generated method stub
+					ProductReport item = new ProductReport();
+					item.setId(rs.getInt("id"));
+					item.setName(rs.getString("name"));
+					item.setRevenue(rs.getFloat("revenue"));
+					return item;
+				}
+
+			});
+			return (List<T>) list;
 		}
 		
 		return null;
