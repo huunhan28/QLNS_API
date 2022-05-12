@@ -19,9 +19,11 @@ import com.example.springapi.apputil.AppUtils;
 import com.example.springapi.dto.ProductDTO;
 import com.example.springapi.models.Category;
 import com.example.springapi.models.Product;
+import com.example.springapi.models.ProductReport;
 import com.example.springapi.models.ResponseObject;
 import com.example.springapi.repositories.CategoryResponsitory;
 import com.example.springapi.repositories.ProductResponsitory;
+import com.example.springapi.service.QueryMySql;
 
 @RestController
 @RequestMapping(path ="/api/v1/Products")
@@ -30,6 +32,8 @@ public class ProductController {
 	
     @Autowired
 	ProductResponsitory responsitory;
+    
+  
 
     @Autowired
     CategoryResponsitory categoryResponsitory;
