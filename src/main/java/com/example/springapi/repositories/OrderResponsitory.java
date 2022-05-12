@@ -17,5 +17,4 @@ public interface OrderResponsitory extends JpaRepository<Orders, Integer>{
 	List<Orders> findAllByStateAndCreateAtBetween(String state, Date startDate, Date endDate);
     List<Orders> findAllByUserId(int userId);
     
-
 }

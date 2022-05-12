@@ -43,8 +43,8 @@ public class ReportController {
    
 	
 	@GetMapping("/param4")
-	public ResponseEntity<ResponseObject> getProductRevenue(@RequestParam("startDate") String startDate,
-															@RequestParam("endDate") String endDate,
+	public ResponseEntity<ResponseObject> getProductRevenue(@RequestParam(value="startDate", required = false) String startDate,
+															@RequestParam(value="endDate", required = false, defaultValue = "22-2-2222") String endDate,
 															@RequestParam("limit") int limit,
 															@RequestParam("offset") int offset){
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
@@ -60,7 +60,6 @@ public class ReportController {
 		List<ProductReport> list = queryMySql.select(ProductReport.class.getName(),
 				sql,null );
 		return AppUtils.returnJS(HttpStatus.OK, "OK", "Request product revenue success", list);
-	}
-    
+	} 
 
 }
