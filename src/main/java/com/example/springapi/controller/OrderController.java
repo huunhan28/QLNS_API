@@ -3,9 +3,10 @@ package com.example.springapi.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+
 
 import javax.validation.ConstraintViolationException;
-
 import com.example.springapi.apputil.AppUtils;
 import com.example.springapi.dto.OrderDTO;
 import com.example.springapi.dto.ProductDTO;
@@ -14,17 +15,20 @@ import com.example.springapi.models.Orders;
 import com.example.springapi.models.ResponseObject;
 import com.example.springapi.repositories.DiscountResponsitory;
 import com.example.springapi.repositories.OrderResponsitory;
-import com.example.springapi.repositories.UserResponsitory;
+import com.example.springapi.security.repository.UserRepository;
 import com.example.springapi.security.entity.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,10 +37,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
     
     @Autowired
+    public JavaMailSender emailSender;
+
+    @Autowired
 	OrderResponsitory orderResponsitory;
 
     @Autowired
-	UserResponsitory userResponsitory;
+	UserRepository userResponsitory;
 
     @Autowired
 	DiscountResponsitory discountResponsitory;
@@ -80,9 +87,9 @@ public class OrderController {
         Optional<Discount> discount=null;
         Orders order;
         if(newOrderDTO.getDiscountId()!=null){
-             discount=discountResponsitory.findById(newOrderDTO.getDiscountId());
+            discount=discountResponsitory.findById(newOrderDTO.getDiscountId());
 
-              order = new Orders(
+            order = new Orders(
                                 user.get(),
                                 newOrderDTO.getCreateAt(),
                                 discount.get(),
@@ -94,6 +101,22 @@ public class OrderController {
                                 null,
                                 newOrderDTO.getState());
         }
+        // Create a Simple MailMessage.
+        SimpleMailMessage message = new SimpleMailMessage();
+                
+        message.setTo(user.get().getEmail());
+        message.setSubject("Organic Food");
+
+        message.setText("Chung toi cam on ban vi da mua hang tai Organic Food \n"+
+                        "Chi tiet don hang cua ban: \n"+
+                        order.getId()+"\n"+
+                        order.getUser().getName()+"\n"+
+                        order.getCreateAt()+"\n"+
+                        order.getDiscount().getPercent()+"\n"+
+                        order.getState());
+
+        // Send Message!
+        this.emailSender.send(message);
         
          
         return ResponseEntity.status(HttpStatus.OK).body(

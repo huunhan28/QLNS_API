@@ -15,6 +15,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,42 +64,7 @@ public class UserController {
 		}
 	}
 
-	@ResponseBody
-	@GetMapping("email/{email}")
-	public ResponseEntity<ResponseObject> getOTPByEmail(@PathVariable("email") String email){
-		Optional<User> user = userRepository.findByEmail(email);
-		if(user.isPresent()){
-			// Create a Simple MailMessage.
-			SimpleMailMessage message = new SimpleMailMessage();
-					
-			message.setTo(email);
-			message.setSubject("Organic Food");
-
-			//Tao OTP
-			ArrayList<String> around = new ArrayList<>();
-			String[] arrCode = new String[5];
-			for(int i= 0; i<=9; i++){
-				Integer tam = new Integer(i);
-				around.add(tam.toString());
-			}
-			Random rand = new Random();
-			String randomOTP = "";
-			for(int i =0; i< 5; i++){
-				int randomInt = rand.nextInt(9);
-				arrCode[i] = around.get(randomInt);
-				System.out.println(arrCode[i]);
-				randomOTP+=arrCode[i];
-			}
-
-			message.setText("OTP cua ban la: "+randomOTP);
-
-			// Send Message!
-			this.emailSender.send(message);
-			return AppUtils.returnJS(HttpStatus.OK, "OK", "Get OTP successfully", randomOTP);
-		}else{
-			return AppUtils.returnJS(HttpStatus.NOT_FOUND, "OK", "Email khong ton tai", "");
-		}
-	}
+	
 	
 	
 	@GetMapping("id/{id}")
