@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+import org.hibernate.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.springapi.apputil.AppUtils;
 import com.example.springapi.dto.UserDTOForUpdate;
+import com.example.springapi.feature.sendsms.SendSMS;
 import com.example.springapi.models.ResponseObject;
 import com.example.springapi.security.entity.User;
 import com.example.springapi.security.repository.UserRepository;
@@ -55,7 +57,7 @@ public class UserController {
 		if(user.isPresent()) {
 			return AppUtils.returnJS(HttpStatus.OK, "Ok", "Find user success fully", user.get());
 		}else {
-			return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Not exist this username", user.get());
+			return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Not exist this username", "");
 		}
 	}
 
@@ -169,7 +171,7 @@ public class UserController {
 		
 	
 		
-	}
+	}//
 
 	@PutMapping("email/{email}/password/{password}")
     ResponseEntity<ResponseObject> updatePasswordByEmail(@PathVariable String email, @PathVariable String password) {
@@ -185,6 +187,23 @@ public class UserController {
                 new ResponseObject("ok", "Update password successfully", "")
         );
     }
+	
+	@GetMapping("sendSMS")
+	ResponseEntity<ResponseObject> sendSMS(@RequestParam("phone") String phone){
+		SendSMS sendSMS = new SendSMS();
+		String otp = AppUtils.generateOTP();
+		String message = "Your verify code in food app: " + otp;
+		sendSMS.send(phone, message);
+		return AppUtils.returnJS(HttpStatus.OK, "OK", "Send to phone "+phone+" success", otp);
+	}
+	
+//	@GetMapping("checkPhonenumber")
+//	ResponseEntity<<ResponseObject>> checkPhoneNumber(@RequestParam("phone") String phone){
+//		Optional<User> optional = userRepository.findByUsername(phone);
+//		if(!optional.isPresent()) {
+//			return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Phone number is not registered", null);
+//		}else return AppUtils.returnJS(HttpStatus.FOUND, "OK", "Phone number is registered", optional.get());
+//	}
 	
 	
 

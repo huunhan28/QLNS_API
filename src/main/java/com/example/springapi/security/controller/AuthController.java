@@ -195,6 +195,8 @@ public class AuthController {
 
 					}
 				}
+			}else {
+				return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Current password incorrect.", null);
 			}
 		}
 		return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed", "User not exists", null);
