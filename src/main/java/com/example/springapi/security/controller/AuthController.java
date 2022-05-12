@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.springapi.apputil.AppUtils;
@@ -171,10 +172,12 @@ public class AuthController {
 
 	@PostMapping("/resetPassword")
 	public ResponseEntity<ResponseObject> resetPassword(
-			@Validated @RequestBody ResetPasswordRequest resetPasswordRequest) {
-
+			@Validated @RequestBody ResetPasswordRequest resetPasswordRequest,
+			@RequestParam("state") Boolean state){
+	
 		String username = resetPasswordRequest.getUsername();
-		String oldPassword = resetPasswordRequest.getOldPassword();
+		String oldPassword="";
+		if(state==true) oldPassword = resetPasswordRequest.getOldPassword();
 		String newPassword = resetPasswordRequest.getNewPassword();
 		String confirmPassword = resetPasswordRequest.getConfirmPassword();
 
@@ -182,6 +185,24 @@ public class AuthController {
 		User user = null;
 		if (userOptional.isPresent()) {
 			user = userOptional.get();
+			
+			if(!state) {// reset pass
+				if (newPassword.equals(confirmPassword)) {
+					try {
+						user.setPassword(encoder.encode(newPassword));
+						User userUpdated = userRepository.save(user);
+						return AppUtils.returnJS(HttpStatus.OK, "Ok", "Update password successfully!", userUpdated);
+					} catch (ConstraintViolationException e) {
+						// TODO: handle exception
+						return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed", "Update password failed!" +
+								AppUtils.getExceptionSql(e), null);
+
+					}
+				}else {
+					
+					return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Confirm password not matches.", null);
+				}
+			}else {
 			if (encoder.matches(oldPassword, user.getPassword())) {
 				if (newPassword.equals(confirmPassword)) {
 					try {
@@ -195,10 +216,18 @@ public class AuthController {
 
 					}
 				}
+				else {
+					
+					return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Confirm password not matches.", null);
+				}
 			}else {
+				
 				return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Current password incorrect.", null);
 			}
+			}
 		}
+			
+		
 		return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed", "User not exists", null);
 
 	}
