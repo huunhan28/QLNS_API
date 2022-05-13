@@ -3,7 +3,9 @@ package com.example.springapi.models;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -71,6 +73,9 @@ public class Orders  {
     private Discount discount;
 
     private String state;
+    
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "order")
+    private Set<OrderDetail> orderDetails;
 
     public Orders(User user, Date createAt, Discount discount, String state) {
         this.user = user;

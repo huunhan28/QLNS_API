@@ -26,6 +26,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -122,6 +123,19 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(
            new ResponseObject("ok", "Insert Order successfully", orderResponsitory.save(order))
         );
+    }
+    
+    @PutMapping("/updateState/{id}")
+    public ResponseEntity<ResponseObject> updateStateByOrderId(@PathVariable("id") int id,
+    															@RequestParam("state") String state){
+    	Optional<Orders> optional = orderResponsitory.findById(id);
+    	if(optional.isPresent()) {
+    		Orders temp = optional.get();
+    		temp.setState(state);
+    		return AppUtils.returnJS(HttpStatus.OK, "OK","Update state order success", orderResponsitory.save(temp)); 
+    	}else {
+    		return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed","Not found this order", null); 
+    	}
     }
     
     @GetMapping("/param/state")

@@ -7,6 +7,9 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.ForeignKey;
 import javax.persistence.MapsId;
 
@@ -29,6 +32,7 @@ public class OrderDetail{
 	private OrderDetailKey id;
 	// @ManyToOne
 	// @JoinColumn(name="order_id")
+	@JsonIgnore
 	@ManyToOne
 	@MapsId("orderId")
 	// @JoinColumn(
