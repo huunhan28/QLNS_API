@@ -9,6 +9,7 @@ import java.util.Random;
 import javax.validation.ConstraintViolationException;
 import com.example.springapi.apputil.AppUtils;
 import com.example.springapi.dto.OrderDTO;
+import com.example.springapi.dto.OrderWithProducts;
 import com.example.springapi.dto.ProductDTO;
 import com.example.springapi.models.Discount;
 import com.example.springapi.models.Orders;
@@ -16,6 +17,7 @@ import com.example.springapi.models.ResponseObject;
 import com.example.springapi.repositories.DiscountResponsitory;
 import com.example.springapi.repositories.OrderResponsitory;
 import com.example.springapi.security.repository.UserRepository;
+import com.example.springapi.service.QueryMySql;
 import com.example.springapi.security.entity.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,11 +50,26 @@ public class OrderController {
 
     @Autowired
 	DiscountResponsitory discountResponsitory;
+    
+    @Autowired
+    QueryMySql<OrderWithProducts> mysql;
 	
 	@GetMapping("")
 	List<Orders> getAllOrders(){
 		return orderResponsitory.findAll();
 	}
+	
+	@GetMapping("/OrderWithProducts/{id}")
+	ResponseEntity<ResponseObject>  getOrderWithProducts(@PathVariable("id") int id){
+		String sql ="select a.order_id id, c.name productName, quantity, price, discount "
+				+ "from (select order_id from orders where order_id="+id+") a, "
+				+ "(select order_order_id,product_product_id, quantity, price, discount from order_detail) b, "
+				+ "(select name, product_id from product) c\r\n"
+				+ "where a.order_id = b.order_order_id and b.product_product_id = c.product_id";
+		return AppUtils.returnJS(HttpStatus.OK, "OK", "List product of order", 
+				mysql.select(OrderWithProducts.class.getName(), sql, null));
+	}
+
 
     @GetMapping("user/{userId}")
 	List<Orders> getAllOrdersByUserId(@PathVariable int userId){
@@ -169,4 +186,6 @@ public class OrderController {
 		}
     	
     }
+    
+    
 }

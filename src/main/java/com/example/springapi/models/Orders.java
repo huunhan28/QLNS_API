@@ -25,6 +25,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.example.springapi.security.entity.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -71,6 +72,7 @@ public class Orders  {
 
     private String state;
     
+//    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "order")
     private Set<OrderDetail> orderDetails;
 
