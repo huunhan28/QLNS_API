@@ -60,15 +60,12 @@ public class Orders  {
     private Date createAt;
 
     // @ManyToOne
-	// @JoinColumn(name = "id")
+	// @JoinColumn(name = "id")//
     @ManyToOne
-	@MapsId("id")
-    @Null
+//	@MapsId("id")
+//    @Null
 	@JoinColumn(
-			name = "discount_id",
-			foreignKey = @ForeignKey(
-					name = "fk_discount"
-					)
+			name = "discount_id"
 			) 
     private Discount discount;
 
