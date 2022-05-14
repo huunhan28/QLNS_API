@@ -9,6 +9,7 @@ import java.util.Random;
 import javax.validation.ConstraintViolationException;
 import com.example.springapi.apputil.AppUtils;
 import com.example.springapi.dto.OrderDTO;
+import com.example.springapi.dto.OrderWithProducts;
 import com.example.springapi.dto.ProductDTO;
 import com.example.springapi.models.Discount;
 import com.example.springapi.models.Orders;
@@ -16,6 +17,7 @@ import com.example.springapi.models.ResponseObject;
 import com.example.springapi.repositories.DiscountResponsitory;
 import com.example.springapi.repositories.OrderResponsitory;
 import com.example.springapi.security.repository.UserRepository;
+import com.example.springapi.service.QueryMySql;
 import com.example.springapi.security.entity.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -47,11 +50,26 @@ public class OrderController {
 
     @Autowired
 	DiscountResponsitory discountResponsitory;
+    
+    @Autowired
+    QueryMySql<OrderWithProducts> mysql;
 	
 	@GetMapping("")
 	List<Orders> getAllOrders(){
 		return orderResponsitory.findAll();
 	}
+	
+	@GetMapping("/OrderWithProducts/{id}")
+	ResponseEntity<ResponseObject>  getOrderWithProducts(@PathVariable("id") int id){
+		String sql ="select a.order_id id, c.name productName, quantity, price, discount "
+				+ "from (select order_id from orders where order_id="+id+") a, "
+				+ "(select order_order_id,product_product_id, quantity, price, discount from order_detail) b, "
+				+ "(select name, product_id from product) c\r\n"
+				+ "where a.order_id = b.order_order_id and b.product_product_id = c.product_id";
+		return AppUtils.returnJS(HttpStatus.OK, "OK", "List product of order", 
+				mysql.select(OrderWithProducts.class.getName(), sql, null));
+	}
+
 
     @GetMapping("user/{userId}")
 	List<Orders> getAllOrdersByUserId(@PathVariable int userId){
@@ -86,6 +104,7 @@ public class OrderController {
         Optional<User> user=userResponsitory.findById(newOrderDTO.getUserId());
         Optional<Discount> discount=null;
         Orders order;
+        float km=0;
         if(newOrderDTO.getDiscountId()!=null){
             discount=discountResponsitory.findById(newOrderDTO.getDiscountId());
 
@@ -94,6 +113,8 @@ public class OrderController {
                                 newOrderDTO.getCreateAt(),
                                 discount.get(),
                                 newOrderDTO.getState());
+            km=discount.get().getPercent();
+                            
         }else{
             order = new Orders(
                                 user.get(),
@@ -109,10 +130,9 @@ public class OrderController {
 
         message.setText("Chung toi cam on ban vi da mua hang tai Organic Food \n"+
                         "Chi tiet don hang cua ban: \n"+
-                        order.getId()+"\n"+
                         order.getUser().getName()+"\n"+
                         order.getCreateAt()+"\n"+
-                        order.getDiscount().getPercent()+"\n"+
+                        km+"\n"+
                         order.getState());
 
         // Send Message!
@@ -122,6 +142,19 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(
            new ResponseObject("ok", "Insert Order successfully", orderResponsitory.save(order))
         );
+    }
+    
+    @PutMapping("/updateState/{id}")
+    public ResponseEntity<ResponseObject> updateStateByOrderId(@PathVariable("id") int id,
+    															@RequestParam("state") String state){
+    	Optional<Orders> optional = orderResponsitory.findById(id);
+    	if(optional.isPresent()) {
+    		Orders temp = optional.get();
+    		temp.setState(state);
+    		return AppUtils.returnJS(HttpStatus.OK, "OK","Update state order success", orderResponsitory.save(temp)); 
+    	}else {
+    		return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed","Not found this order", null); 
+    	}
     }
     
     @GetMapping("/param/state")
@@ -155,4 +188,6 @@ public class OrderController {
 		}
     	
     }
+    
+    
 }

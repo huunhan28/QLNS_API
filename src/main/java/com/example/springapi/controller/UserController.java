@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+import javax.validation.ConstraintViolationException;
+
 import org.hibernate.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -107,11 +109,8 @@ public class UserController {
 				return AppUtils.returnJS(HttpStatus.OK, "Ok", "Update user successfully", userUpdated);
 		}catch (Exception e) {
 			// TODO: handle exception
-			return AppUtils.returnJS(HttpStatus.NOT_IMPLEMENTED, "Failed", "Update user failed", null);
+			return AppUtils.returnJS(HttpStatus.NOT_IMPLEMENTED, "Failed",e.getMessage() , null);
 		}
-		
-	
-		
 	}
 	
 	
@@ -132,7 +131,7 @@ public class UserController {
 				return AppUtils.returnJS(HttpStatus.OK, "Ok", "Update user successfully", userUpdated);
 		}catch (Exception e) {
 			// TODO: handle exception
-			return AppUtils.returnJS(HttpStatus.NOT_IMPLEMENTED, "Failed", "Update user failed", null);
+			return AppUtils.returnJS(HttpStatus.NOT_IMPLEMENTED, "Failed", e.getMessage(), null);
 		}
 		
 	

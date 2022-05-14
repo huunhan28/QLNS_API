@@ -3,7 +3,9 @@ package com.example.springapi.models;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -23,6 +25,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.example.springapi.security.entity.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -58,19 +61,20 @@ public class Orders  {
     private Date createAt;
 
     // @ManyToOne
-	// @JoinColumn(name = "id")
+	// @JoinColumn(name = "id")//
     @ManyToOne
-	@MapsId("id")
-    @Null
+//	@MapsId("id")
+//    @Null
 	@JoinColumn(
-			name = "discount_id",
-			foreignKey = @ForeignKey(
-					name = "fk_discount"
-					)
+			name = "discount_id"
 			) 
     private Discount discount;
 
     private String state;
+    
+//    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "order")
+    private Set<OrderDetail> orderDetails;
 
     public Orders(User user, Date createAt, Discount discount, String state) {
         this.user = user;

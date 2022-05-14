@@ -14,8 +14,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDTOForUpdate {
-	private String name;
-	private String email;
-	private String address;
+	private String name="";
+	private String email="";
+	private String address="";
 
 }

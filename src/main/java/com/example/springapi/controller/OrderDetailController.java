@@ -53,7 +53,7 @@ public class OrderDetailController {
                                                     newOrderDetailDTO.getDiscount());
         return ResponseEntity.status(HttpStatus.OK).body(
            new ResponseObject("ok", "Insert OrderDetail successfully", orderDetailResponsitory.save(newOrderDetail))
-        );
+        );//
     }
 
     // @PostMapping("/insert")
