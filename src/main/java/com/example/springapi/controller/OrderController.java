@@ -11,6 +11,7 @@ import com.example.springapi.apputil.AppUtils;
 import com.example.springapi.dto.OrderDTO;
 import com.example.springapi.dto.OrderWithProducts;
 import com.example.springapi.dto.ProductDTO;
+import com.example.springapi.mapper.MapperService;
 import com.example.springapi.models.Discount;
 import com.example.springapi.models.Orders;
 import com.example.springapi.models.ResponseObject;
@@ -25,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,10 +55,17 @@ public class OrderController {
     
     @Autowired
     QueryMySql<OrderWithProducts> mysql;
+    
+    @Autowired
+    MapperService mapperService;
 	
 	@GetMapping("")
 	List<Orders> getAllOrders(){
 		return orderResponsitory.findAll();
+	}
+	@GetMapping("/dto")
+	List<OrderDTO> getAllOrdersDTO(){
+		return mapperService.mapList(orderResponsitory.findAll(), OrderDTO.class);
 	}
 	
 	@GetMapping("/OrderWithProducts/{id}")
