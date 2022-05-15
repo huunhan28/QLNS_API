@@ -113,6 +113,25 @@ public class UserController {
 		}
 	}
 	
+	@PutMapping("updateTokenFireBase/{id}")
+	public ResponseEntity<ResponseObject> updateUserTokenFirebase(@PathVariable("id") int id, 
+			@RequestPart("token") String token){
+		Optional<User> optionalUser = userRepository.findById(id);
+		if(!optionalUser.isPresent()) {
+			return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "IDD user not found", null);
+		}
+		User user = optionalUser.get();
+		user.setTokenFireBase(token);
+		User userUpdated;
+		try {
+			 userUpdated = userRepository.save(user);
+				return AppUtils.returnJS(HttpStatus.OK, "Ok", "Update user successfully", userUpdated);
+		}catch (Exception e) {
+			// TODO: handle exception
+			return AppUtils.returnJS(HttpStatus.NOT_IMPLEMENTED, "Failed",e.getMessage() , null);
+		}
+	}
+	
 	
 	@PutMapping("updateNotImage/{id}")
 	public ResponseEntity<ResponseObject> updateUserNotImage(@PathVariable("id") int id, 

@@ -93,7 +93,8 @@ public class AuthController {
 				new User(userDetails.getId(), userDetails.getName(), userDetails.getEmail(),
 						userDetails.getUsername(), userDetails.getAddress(),type+ " "+ jwt,
 						userDetails.getCreatedAt(), userDetails.getUpdatedAt(),
-						userDetails.getPassword(), roles, userDetails.getImageUser()));
+						userDetails.getPassword(), roles, userDetails.getImageUser(),
+						userDetails.getTokenFireBase()));
 
 	}
 

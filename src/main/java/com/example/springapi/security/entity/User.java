@@ -80,6 +80,8 @@ public class User {
 	// @NotBlank
 	private String password;
 	
+	private String tokenFireBase;
+	
 
 	// @NotEmpty
 	@ManyToMany(fetch = FetchType.EAGER)
@@ -207,6 +209,23 @@ public class User {
 		this.password = password;
 		this.roles = roles;
 		this.imageUser = imageUser;
+	}
+	
+	public User(int id, @NotBlank String name, String email, String username, String address, String rememberToken,
+			Date createdAt, Date updatedAt, String password, Set<Role> roles, FileDB imageUser, String tokenFireBase) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.email = email;
+		this.username = username;
+		this.address = address;
+		this.rememberToken = rememberToken;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
+		this.password = password;
+		this.roles = roles;
+		this.imageUser = imageUser;
+		this.tokenFireBase = tokenFireBase;
 	}
 
 }

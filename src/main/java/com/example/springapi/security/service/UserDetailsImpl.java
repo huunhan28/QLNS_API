@@ -51,6 +51,7 @@ public class UserDetailsImpl implements UserDetails {
     private Collection<? extends GrantedAuthority> authorities;
     
     private FileDB imageUser;
+    private String tokenFireBase;
 //    public UserDetailsImpl(Long id, String username, String email, String password, String address,
 //           Collection<? extends GrantedAuthority> authorities) {
 //        this.id = id;
@@ -75,8 +76,8 @@ public class UserDetailsImpl implements UserDetails {
                 user.getUpdatedAt(),
                user.getPassword(),
                authorities,
-
-               user.getImageUser());
+               user.getImageUser(),
+               user.getTokenFireBase());
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
