@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.springapi.dto.CartDTO;
+import com.example.springapi.dto.CartForOrderDetail;
 import com.example.springapi.dto.CategoryDTO;
 import com.example.springapi.dto.DiscountDTO;
 import com.example.springapi.dto.OrderWithProducts;
@@ -91,6 +93,25 @@ public class QueryMySql<T> {
 					OrderWithProducts item = new OrderWithProducts();
 					item.setId(rs.getInt("id"));
 					item.setProductName(rs.getString("productName"));
+					item.setQuantity(rs.getInt("quantity"));
+					item.setPrice(rs.getFloat("price"));
+					item.setDiscount(rs.getFloat("discount"));
+					return item;
+				}
+
+			});
+			return (List<T>) list;
+		}
+		
+		else if(type.equals(CartForOrderDetail.class.getName())) {
+			List<CartForOrderDetail> list = jdbcTemplate.query(sql, args, new RowMapper<CartForOrderDetail>() {
+
+				@Override
+				public CartForOrderDetail mapRow(ResultSet rs, int rowNum) throws SQLException {
+					// TODO Auto-generated method stub
+					CartForOrderDetail item = new CartForOrderDetail();
+					item.setUserId(rs.getInt("userId"));
+					item.setProductId(rs.getInt("productId"));
 					item.setQuantity(rs.getInt("quantity"));
 					item.setPrice(rs.getFloat("price"));
 					item.setDiscount(rs.getFloat("discount"));

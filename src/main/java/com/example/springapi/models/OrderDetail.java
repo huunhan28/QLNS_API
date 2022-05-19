@@ -53,7 +53,7 @@ public class OrderDetail{
 	// 				name = "fk_orderdetail_product"
 	// 				)
 	// 		)
-	private Product product;
+	private Product product;//
 
     private int quantity;
 

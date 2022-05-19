@@ -74,7 +74,7 @@ public class Orders  {
     
 //    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "order")
-    private Set<OrderDetail> orderDetails;
+    private List<OrderDetail> orderDetails;
 
     public Orders(User user, Date createAt, Discount discount, String state) {
         this.user = user;

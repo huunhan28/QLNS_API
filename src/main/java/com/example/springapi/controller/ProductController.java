@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,21 +15,29 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.springapi.apputil.AppUtils;
 import com.example.springapi.dto.ProductDTO;
 import com.example.springapi.models.Category;
+import com.example.springapi.models.Discount;
 import com.example.springapi.models.Product;
 import com.example.springapi.models.ProductReport;
 import com.example.springapi.models.ResponseObject;
 import com.example.springapi.repositories.CategoryResponsitory;
 import com.example.springapi.repositories.ProductResponsitory;
+import com.example.springapi.requestmodel.DiscountRequest;
 import com.example.springapi.service.QueryMySql;
+import com.example.springapi.service.UploadFileService;
+import com.example.springapi.uploadfile.model.FileDB;
 
 @RestController
 @RequestMapping(path = "/api/v1/Products")
 public class ProductController {
+	@Autowired
+	UploadFileService uploadFileService;
 
     @Autowired
     ProductResponsitory responsitory;
@@ -41,6 +50,8 @@ public class ProductController {
     List<Product> getAllProducts() {
         return responsitory.findAll();
     }
+    
+
 
     @CrossOrigin(origins = "http://organicfood.com")
     @GetMapping("/{id}")
@@ -66,9 +77,54 @@ public class ProductController {
 
     // insert new Product with POST method
     // Postman : Raw, JSON
+
     @CrossOrigin(origins = "http://organicfood.com")
+	@PostMapping(value = "/insert/v2", consumes = {
+			MediaType.APPLICATION_JSON_VALUE,
+			MediaType.MULTIPART_FORM_DATA_VALUE
+	})
+	public ResponseEntity<ResponseObject> insertDiscountWithImage(
+			@RequestPart("product") ProductDTO newProductDTO,
+			@RequestPart("file") MultipartFile file) {
+
+    	  Optional<Category> category = categoryResponsitory.findById(newProductDTO.getCategoryId());
+          List<Product> foundProducts = responsitory.findByName(newProductDTO.getName().trim());
+
+          if (foundProducts.size() > 0) {
+              return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+                      new ResponseObject("failed", "Product name already taken", ""));
+          }
+          Product newProduct = new Product(newProductDTO.getProductId(),
+                  category.isPresent() ? category.get() : null,
+                  newProductDTO.getName(),
+                  newProductDTO.getPrice(),
+                  newProductDTO.getCalculationUnit(),
+                  newProductDTO.getTotal(),
+                  newProductDTO.getDescription(),
+                  newProductDTO.getSlug(),
+                  newProductDTO.isDisplay(),
+                  newProductDTO.getRate(),
+                  newProductDTO.getDiscount(),
+                  newProductDTO.getId(),
+                  newProductDTO.getUrl(),
+                  newProductDTO.getYear());
+   
+		FileDB fileDB = uploadFileService.uploadFileToLocalAndDB(file);
+		System.out.println("sau khi ep kieu");
+		Discount discount = new Discount();
+		newProduct.setImage(fileDB);
+		try {
+			newProduct = responsitory.save(newProduct);
+		} catch (Exception e) {
+			return AppUtils.returnJS(HttpStatus.BAD_REQUEST, "Failed",
+					"Insert product", null);
+		}
+
+		return AppUtils.returnJS(HttpStatus.OK, "Ok",
+				"Insert discount with image success", newProduct);
+	}
     @PostMapping("/insert")
-    ResponseEntity<ResponseObject> insertProduct(@RequestBody ProductDTO newProductDTO) {
+    ResponseEntity<ResponseObject> insertProduct2(@RequestBody ProductDTO newProductDTO) {
         // 2 products must not have the same name !
         Optional<Category> category = categoryResponsitory.findById(newProductDTO.getCategoryId());
         List<Product> foundProducts = responsitory.findByName(newProductDTO.getName().trim());

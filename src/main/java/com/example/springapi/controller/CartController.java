@@ -6,6 +6,9 @@ import java.util.Optional;
 // import javax.transaction.Transactional;
 
 import com.example.springapi.dto.CartDTO;
+import com.example.springapi.dto.CartForOrderDetail;
+import com.example.springapi.dto.OrderDTO;
+import com.example.springapi.mapper.MapperService;
 import com.example.springapi.models.Cart;
 import com.example.springapi.models.CartKey;
 import com.example.springapi.models.Discount;
@@ -15,7 +18,9 @@ import com.example.springapi.repositories.CartResponsitory;
 import com.example.springapi.repositories.ProductResponsitory;
 import com.example.springapi.repositories.UserResponsitory;
 import com.example.springapi.security.entity.User;
+import com.example.springapi.service.QueryMySql;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,10 +43,15 @@ public class CartController {
 	CartResponsitory cartResponsitory;
 	
     @Autowired
+    MapperService mapperService;
+    @Autowired
 	ProductResponsitory productResponsitory;
 
 	@Autowired
 	UserResponsitory userResponsitory;
+	
+	@Autowired
+	QueryMySql<CartForOrderDetail> query;
 
 	@GetMapping("")
 	List<Cart> getAllCarts(){
@@ -68,6 +78,14 @@ public class CartController {
 	List<Cart> getAllCartsFollowUser(@PathVariable int id){
 		return cartResponsitory.findAllByUserId(id);
 	}
+	
+	@GetMapping("/user/v2/{id}")
+	List<CartForOrderDetail> getAllCartsFollowUser2(@PathVariable int id){
+		String sql = "select user_id as userId, product_id as productId , "
+				+ "quantity, price, discount from (select * from cart where user_id="+id+") as a,\r\n"
+				+ "product where a.product_product_id=product.product_id";
+		return query.select(CartForOrderDetail.class.getName(), sql, null);
+	}
 
 	//insert new Cart with POST method
     //Postman : Raw, JSON
@@ -76,14 +94,69 @@ public class CartController {
         
         Optional<User> user=userResponsitory.findById(newCartDTO.getUserId());
         Optional<Product> product=productResponsitory.findById(newCartDTO.getProductId());
+        Optional<Cart> carOptional = cartResponsitory.findByIdProductIdAndIdUserId(newCartDTO.getProductId(), newCartDTO.getUserId());
+       int quantity = newCartDTO.getQuantity();
+        if(carOptional.isPresent()) {
+        	System.out.println("Vao presen cart");
+    	   quantity = quantity + carOptional.get().getQuantity();
+    	   cartResponsitory.delete(carOptional.get());
+       }
         Cart newCart=new Cart(	new CartKey(user.get().getId(), product.get().getId()),
 								user.get(),
 								product.get(),
-								newCartDTO.getQuantity());
+								quantity);
         return ResponseEntity.status(HttpStatus.OK).body(
            new ResponseObject("ok", "Insert OrderDetail successfully", cartResponsitory.save(newCart))
         );
     }
+    
+    @PostMapping("/plusQuantity")
+    ResponseEntity<ResponseObject> plusQuantity(@RequestBody CartDTO newCartDTO) {
+        
+        Optional<User> user=userResponsitory.findById(newCartDTO.getUserId());
+        Optional<Product> product=productResponsitory.findById(newCartDTO.getProductId());
+        Optional<Cart> carOptional = cartResponsitory.findByIdProductIdAndIdUserId(newCartDTO.getProductId(), newCartDTO.getUserId());
+       int quantity = newCartDTO.getQuantity();
+        if(carOptional.isPresent()) {
+        	System.out.println("Vao presen cart");
+    	   quantity = quantity + carOptional.get().getQuantity();
+    	   cartResponsitory.delete(carOptional.get());
+       }
+        Cart newCart=new Cart(	new CartKey(user.get().getId(), product.get().getId()),
+								user.get(),
+								product.get(),
+								quantity);
+        return ResponseEntity.status(HttpStatus.OK).body(
+           new ResponseObject("ok", "Insert OrderDetail successfully", cartResponsitory.save(newCart))
+        );
+    }
+    
+    
+    @PostMapping("/minusQuantity")
+    ResponseEntity<ResponseObject> minusQuantity(@RequestBody CartDTO newCartDTO) {
+        
+        Optional<User> user=userResponsitory.findById(newCartDTO.getUserId());
+        Optional<Product> product=productResponsitory.findById(newCartDTO.getProductId());
+        Optional<Cart> carOptional = cartResponsitory.findByIdProductIdAndIdUserId(newCartDTO.getProductId(), newCartDTO.getUserId());
+       int quantity = newCartDTO.getQuantity();
+        if(carOptional.isPresent()) {
+        	System.out.println("Vao presen cart");
+    	   quantity =  carOptional.get().getQuantity()-quantity;
+    	   cartResponsitory.delete(carOptional.get());
+       }
+        if(quantity<=0) return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("ok", "Minus cart item successfully quantity=0", null)
+                );
+        Cart newCart=new Cart(	new CartKey(user.get().getId(), product.get().getId()),
+								user.get(),
+								product.get(),
+								quantity);
+        return ResponseEntity.status(HttpStatus.OK).body(
+           new ResponseObject("ok", "Insert OrderDetail successfully", cartResponsitory.save(newCart))
+        );
+    }
+    
+  
 	//update, upsert = update if found, otherwise insert
 	@PutMapping("")
     ResponseEntity<ResponseObject> updateOrderDetail(@RequestBody CartDTO cartDTO) {

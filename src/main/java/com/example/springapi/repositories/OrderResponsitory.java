@@ -1,6 +1,7 @@
 package com.example.springapi.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -21,8 +22,9 @@ import org.springframework.stereotype.Repository;
 public interface OrderResponsitory extends JpaRepository<Orders, Integer>{
 
     List<Orders> findAllByState(String state);
-	List<Orders> findAllByStateAndCreateAtBetween(String state, Date startDate, Date endDate);
-    List<Orders> findAllByUserId(int userId);
+	List<Orders> findAllByStateAndCreateAtBetweenOrderByIdDesc(String state, Date startDate, Date endDate);
+    List<Orders> findAllByUserIdOrderByIdDesc(int userId);
+    Optional<Orders> findTopByOrderByIdDesc();
     
 
 //    @Query(value = "select new com.example.springapi.dto.OrderWithProducts(a.id,"

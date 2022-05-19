@@ -25,6 +25,7 @@ public interface CartResponsitory extends JpaRepository<Cart, Integer>{
     boolean existsByUserId(Integer id);
 
     List<Cart> findAllByUserId(Integer id);
+    Optional<Cart> findByIdProductIdAndIdUserId(int productId, int userId);
 
     void deleteByUser(User user);
 

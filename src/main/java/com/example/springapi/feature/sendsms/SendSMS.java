@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 public class SendSMS { 
     // Find your Account Sid and Token at twilio.com/console 
     public static final String ACCOUNT_SID = "AC3de7bece048e8fedacd4e45436b6f790"; 
-    public static final String AUTH_TOKEN2 = "6824fd93f0de908cf99b7aa0ec7b227b";//6824fd93f0de908cf99b7aa0ec7b227b
+    public static final String AUTH_TOKEN2 = "0daead20c6ed9b1d3bde825cc4b29ee5";//6824fd93f0de908cf99b7aa0ec7b227b
     																			//6824fd93f0de908cf99b7aa0ec7b227b
  
     public static void send(String phoneNumber, String messageString) { 

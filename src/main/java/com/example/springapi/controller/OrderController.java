@@ -1,5 +1,6 @@
 package com.example.springapi.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -13,12 +14,16 @@ import com.example.springapi.dto.OrderWithProducts;
 import com.example.springapi.dto.ProductDTO;
 import com.example.springapi.mapper.MapperService;
 import com.example.springapi.models.Discount;
+import com.example.springapi.models.OrderDetail;
 import com.example.springapi.models.Orders;
 import com.example.springapi.models.ResponseObject;
 import com.example.springapi.repositories.DiscountResponsitory;
 import com.example.springapi.repositories.OrderResponsitory;
 import com.example.springapi.security.repository.UserRepository;
 import com.example.springapi.service.QueryMySql;
+
+import lombok.Setter;
+
 import com.example.springapi.security.entity.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +79,8 @@ public class OrderController {
 				+ "from (select order_id from orders where order_id="+id+") a, "
 				+ "(select order_order_id,product_product_id, quantity, price, discount from order_detail) b, "
 				+ "(select name, product_id from product) c\r\n"
-				+ "where a.order_id = b.order_order_id and b.product_product_id = c.product_id";
+				+ "where a.order_id = b.order_order_id and b.product_product_id = c.product_id"
+				+ "order by a.order_id";
 		return AppUtils.returnJS(HttpStatus.OK, "OK", "List product of order", 
 				mysql.select(OrderWithProducts.class.getName(), sql, null));
 	}
@@ -82,7 +88,7 @@ public class OrderController {
 
     @GetMapping("user/{userId}")
 	List<Orders> getAllOrdersByUserId(@PathVariable int userId){
-		return orderResponsitory.findAllByUserId(userId);
+		return orderResponsitory.findAllByUserIdOrderByIdDesc(userId);
 	}
 
     @GetMapping("/{id}")
@@ -133,19 +139,33 @@ public class OrderController {
         }
         // Create a Simple MailMessage.
         SimpleMailMessage message = new SimpleMailMessage();
-                
+        Optional<Orders> optionalOrder = orderResponsitory.findTopByOrderByIdDesc();
+//        String productName = "";
+//        if(optionalOrder.isPresent()) {
+//        	List<OrderDetail> list = optionalOrder.get().getOrderDetails();
+//        	list.forEach(orderDetail ->{
+//        		if(productName.length()>0) {
+//        			productName+="\n";
+//        			
+//        		}
+//        		productName += orderDetail.getProduct().getName() + " 1x" + orderDetail.getQuantity();
+//        	});
+//        }
+        int orderId = 100;
+        if(optionalOrder.isPresent()) orderId= optionalOrder.get().getId();
+        if(user.get().getEmail()!=null && !user.get().getEmail().equals("") ) {
         message.setTo(user.get().getEmail());
         message.setSubject("Organic Food");
-
-        message.setText("Chung toi cam on ban vi da mua hang tai Organic Food \n"+
-                        "Chi tiet don hang cua ban: \n"+
-                        order.getUser().getName()+"\n"+
-                        order.getCreateAt()+"\n"+
-                        km+"\n"+
-                        order.getState());
+        message.setText("Thanks for your order\n"+
+                        "Order information: \n"+
+                        "Order ID: "+ orderId+"\n"+
+                        "Your name: " +  order.getUser().getName()+"\n"+
+                        "Date: " + new SimpleDateFormat("dd/MM/yyyy)").format(order.getCreateAt()) +"\n"+
+                        "State: Waiting" + "\n");
 
         // Send Message!
         this.emailSender.send(message);
+        }
         
          
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -188,7 +208,7 @@ public class OrderController {
     	String patternDate = "dd-MM-yyyy";
     	
     	try {
-			list = orderResponsitory.findAllByStateAndCreateAtBetween(state, AppUtils.stringToDate(startDate, patternDate),
+			list = orderResponsitory.findAllByStateAndCreateAtBetweenOrderByIdDesc(state, AppUtils.stringToDate(startDate, patternDate),
 					AppUtils.stringToDate(endDate, patternDate));
 			return AppUtils.returnJS(HttpStatus.OK, "OK","Get order by state success ", list);
 		} catch (ConstraintViolationException e) {

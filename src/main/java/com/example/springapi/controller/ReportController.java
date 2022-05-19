@@ -47,7 +47,19 @@ public class ReportController {
 															@RequestParam(value="endDate", required = false, defaultValue = "22-2-2222") String endDate,
 															@RequestParam("limit") int limit,
 															@RequestParam("offset") int offset){
-		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		try {
+			startDate = sdf.format(new SimpleDateFormat("dd-MM-yyyy").parse(startDate));
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			endDate = sdf.format(new SimpleDateFormat("dd-MM-yyyy").parse(endDate));
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		String sql = "select product_product_id id,product.name, sum(b.doanhthu) revenue from (select  product_product_id, a.quantity, price,percent, price*a.quantity*(1-COALESCE(percent,0)) 							doanhthu\r\n"
 				+ "								from (select orders.order_id, product_product_id, order_detail.quantity, price, discount_id \r\n"
 				+ "								from orders,order_detail \r\n"
