@@ -11,11 +11,11 @@ import java.math.BigDecimal;
 public class SendSMS { 
     // Find your Account Sid and Token at twilio.com/console 
     public static final String ACCOUNT_SID = "AC3de7bece048e8fedacd4e45436b6f790"; 
-    public static final String AUTH_TOKEN2 = "0daead20c6ed9b1d3bde825cc4b29ee5";//6824fd93f0de908cf99b7aa0ec7b227b
+    public static final String[] twilio = {"1062d6cc1478e2d2eaf96fd884a8f601"};//6824fd93f0de908cf99b7aa0ec7b227b
     																			//6824fd93f0de908cf99b7aa0ec7b227b
  
     public static void send(String phoneNumber, String messageString) { 
-        Twilio.init(ACCOUNT_SID, AUTH_TOKEN2); 
+        Twilio.init(ACCOUNT_SID, twilio[0]); 
         Message message = Message.creator( 
                 new com.twilio.type.PhoneNumber(phoneNumber),  
                 "MGd7591077f48b9bb44046d63489183f76", 

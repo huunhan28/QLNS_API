@@ -113,7 +113,6 @@ public class AuthController {
 		User user = new User(
 				signUpRequest.getUsername(),
 				signUpRequest.getName(),
-				
 				encoder.encode(signUpRequest.getPassword()));
 		
 		Set<String> strRoles = signUpRequest.getRole();
@@ -134,6 +133,11 @@ public class AuthController {
 						Role userRole = roleRepository.findByName(ERole.ROLE_USER)
 								.orElseThrow(() -> new RuntimeException("Error: Role is not found. "));
 						roles.add(userRole);
+						break;
+					case "admin":// khi role là user
+						Role userRole2 = roleRepository.findByName(ERole.ROLE_ADMIN)
+								.orElseThrow(() -> new RuntimeException("Error: Role is not found. "));
+						roles.add(userRole2);
 						break;
 					default:
 						return AppUtils.returnJS(HttpStatus.OK, "Failed", "Roles do not exists", null);

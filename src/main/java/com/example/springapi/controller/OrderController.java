@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-
 import javax.validation.ConstraintViolationException;
 import com.example.springapi.apputil.AppUtils;
 import com.example.springapi.dto.OrderDTO;
@@ -43,180 +42,181 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path ="/api/v1/Orders")
+@RequestMapping(path = "/api/v1/Orders")
 public class OrderController {
-    
+
     @Autowired
     public JavaMailSender emailSender;
 
     @Autowired
-	OrderResponsitory orderResponsitory;
+    OrderResponsitory orderResponsitory;
 
     @Autowired
-	UserRepository userResponsitory;
+    UserRepository userResponsitory;
 
     @Autowired
-	DiscountResponsitory discountResponsitory;
-    
+    DiscountResponsitory discountResponsitory;
+
     @Autowired
     QueryMySql<OrderWithProducts> mysql;
-    
+
     @Autowired
     MapperService mapperService;
-	
-	@GetMapping("")
-	List<Orders> getAllOrders(){
-		return orderResponsitory.findAll();
-	}
-	@GetMapping("/dto")
-	List<OrderDTO> getAllOrdersDTO(){
-		return mapperService.mapList(orderResponsitory.findAll(), OrderDTO.class);
-	}
-	
-	@GetMapping("/OrderWithProducts/{id}")
-	ResponseEntity<ResponseObject>  getOrderWithProducts(@PathVariable("id") int id){
-		String sql ="select a.order_id id, c.name productName, quantity, price, discount "
-				+ "from (select order_id from orders where order_id="+id+") a, "
-				+ "(select order_order_id,product_product_id, quantity, price, discount from order_detail) b, "
-				+ "(select name, product_id from product) c\r\n"
-				+ "where a.order_id = b.order_order_id and b.product_product_id = c.product_id"
-				+ "order by a.order_id";
-		return AppUtils.returnJS(HttpStatus.OK, "OK", "List product of order", 
-				mysql.select(OrderWithProducts.class.getName(), sql, null));
-	}
 
+    @GetMapping("")
+    List<Orders> getAllOrders() {
+        return orderResponsitory.findAll();
+    }
+
+    @GetMapping("/dto")
+    List<OrderDTO> getAllOrdersDTO() {
+        return mapperService.mapList(orderResponsitory.findAll(), OrderDTO.class);
+    }
+
+    @GetMapping("/OrderWithProducts/{id}")
+    ResponseEntity<ResponseObject> getOrderWithProducts(@PathVariable("id") int id) {
+        String sql = "select a.order_id id, c.name productName, quantity, price, discount "
+                + "from (select order_id from orders where order_id=" + id + ") a, "
+                + "(select order_order_id,product_product_id, quantity, price, discount from order_detail) b, "
+                + "(select name, product_id from product) c\r\n"
+                + "where a.order_id = b.order_order_id and b.product_product_id = c.product_id"
+                + "order by a.order_id";
+        return AppUtils.returnJS(HttpStatus.OK, "OK", "List product of order",
+                mysql.select(OrderWithProducts.class.getName(), sql, null));
+    }
 
     @GetMapping("user/{userId}")
-	List<Orders> getAllOrdersByUserId(@PathVariable int userId){
-		return orderResponsitory.findAllByUserIdOrderByIdDesc(userId);
-	}
+    List<Orders> getAllOrdersByUserId(@PathVariable int userId) {
+        return orderResponsitory.findAllByUserIdOrderByIdDesc(userId);
+    }
 
     @GetMapping("/{id}")
-	ResponseEntity<ResponseObject> getProduct(@PathVariable int id){
-		Optional<Orders> findOrder = orderResponsitory.findById(id);
-		if(findOrder.isPresent()) {
-			return ResponseEntity.status(HttpStatus.OK).body(
-					new ResponseObject("ok", "Query product sucessfully", findOrder));
-		}else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-						new ResponseObject("failed", "Can not find order with id=" + id, ""));
-		}
-        
-	}
-    
-    //insert new Order with POST method
-    //Postman : Raw, JSON
+    ResponseEntity<ResponseObject> getProduct(@PathVariable int id) {
+        Optional<Orders> findOrder = orderResponsitory.findById(id);
+        if (findOrder.isPresent()) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("ok", "Query product sucessfully", findOrder));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new ResponseObject("failed", "Can not find order with id=" + id, ""));
+        }
+
+    }
+
+    // insert new Order with POST method
+    // Postman : Raw, JSON
     // @PostMapping("/insert")
     // ResponseEntity<ResponseObject> insertOrder(@RequestBody Orders newOrders) {
-        
-    //     return ResponseEntity.status(HttpStatus.OK).body(
-    //        new ResponseObject("ok", "Insert Order successfully", orderResponsitory.save(newOrders))
-    //     );
+
+    // return ResponseEntity.status(HttpStatus.OK).body(
+    // new ResponseObject("ok", "Insert Order successfully",
+    // orderResponsitory.save(newOrders))
+    // );
     // }
 
     @PostMapping("/insert")
     ResponseEntity<ResponseObject> insertOrder(@RequestBody OrderDTO newOrderDTO) {
-        Optional<User> user=userResponsitory.findById(newOrderDTO.getUserId());
-        Optional<Discount> discount=null;
+        Optional<User> user = userResponsitory.findById(newOrderDTO.getUserId());
+        Optional<Discount> discount = null;
         Orders order;
-        float km=0;
-        if(newOrderDTO.getDiscountId()!=null){
-            discount=discountResponsitory.findById(newOrderDTO.getDiscountId());
+        float km = 0;
+        if (newOrderDTO.getDiscountId() != null) {
+            discount = discountResponsitory.findById(newOrderDTO.getDiscountId());
 
             order = new Orders(
-                                user.get(),
-                                newOrderDTO.getCreateAt(),
-                                discount.get(),
-                                newOrderDTO.getState());
-            km=discount.get().getPercent();
-                            
-        }else{
+                    user.get(),
+                    newOrderDTO.getCreateAt(),
+                    discount.get(),
+                    newOrderDTO.getState());
+            km = discount.get().getPercent();
+
+        } else {
             order = new Orders(
-                                user.get(),
-                                newOrderDTO.getCreateAt(),
-                                null,
-                                newOrderDTO.getState());
+                    user.get(),
+                    newOrderDTO.getCreateAt(),
+                    null,
+                    newOrderDTO.getState());
         }
         // Create a Simple MailMessage.
         SimpleMailMessage message = new SimpleMailMessage();
         Optional<Orders> optionalOrder = orderResponsitory.findTopByOrderByIdDesc();
-//        String productName = "";
-//        if(optionalOrder.isPresent()) {
-//        	List<OrderDetail> list = optionalOrder.get().getOrderDetails();
-//        	list.forEach(orderDetail ->{
-//        		if(productName.length()>0) {
-//        			productName+="\n";
-//        			
-//        		}
-//        		productName += orderDetail.getProduct().getName() + " 1x" + orderDetail.getQuantity();
-//        	});
-//        }
+        // String productName = "";
+        // if(optionalOrder.isPresent()) {
+        // List<OrderDetail> list = optionalOrder.get().getOrderDetails();
+        // list.forEach(orderDetail ->{
+        // if(productName.length()>0) {
+        // productName+="\n";
+        //
+        // }
+        // productName += orderDetail.getProduct().getName() + " 1x" +
+        // orderDetail.getQuantity();
+        // });
+        // }
         int orderId = 100;
-        if(optionalOrder.isPresent()) orderId= optionalOrder.get().getId();
-        if(user.get().getEmail()!=null && !user.get().getEmail().equals("") ) {
-        message.setTo(user.get().getEmail());
-        message.setSubject("Organic Food");
-        message.setText("Thanks for your order\n"+
-                        "Order information: \n"+
-                        "Order ID: "+ orderId+"\n"+
-                        "Your name: " +  order.getUser().getName()+"\n"+
-                        "Date: " + new SimpleDateFormat("dd/MM/yyyy)").format(order.getCreateAt()) +"\n"+
-                        "State: Waiting" + "\n");
+        if (optionalOrder.isPresent())
+            orderId = optionalOrder.get().getId();
+        if (user.get().getEmail() != null && !user.get().getEmail().equals("")) {
+            message.setTo(user.get().getEmail());
+            message.setSubject("Organic Food");
+            message.setText("Thanks for your order\n" +
+                    "Order information: \n" +
+                    "Order ID: " + orderId + "\n" +
+                    "Your name: " + order.getUser().getName() + "\n" +
+                    "Date: " + new SimpleDateFormat("dd/MM/yyyy)").format(order.getCreateAt()) + "\n" +
+                    "State: Waiting" + "\n");
 
-        // Send Message!
-        this.emailSender.send(message);
+            // Send Message!
+            // this.emailSender.send(message);
         }
-        
-         
+
         return ResponseEntity.status(HttpStatus.OK).body(
-           new ResponseObject("ok", "Insert Order successfully", orderResponsitory.save(order))
-        );
+                new ResponseObject("ok", "Insert Order successfully", orderResponsitory.save(order)));
     }
-    
+
     @PutMapping("/updateState/{id}")
     public ResponseEntity<ResponseObject> updateStateByOrderId(@PathVariable("id") int id,
-    															@RequestParam("state") String state){
-    	Optional<Orders> optional = orderResponsitory.findById(id);
-    	if(optional.isPresent()) {
-    		Orders temp = optional.get();
-    		temp.setState(state);
-    		return AppUtils.returnJS(HttpStatus.OK, "OK","Update state order success", orderResponsitory.save(temp)); 
-    	}else {
-    		return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed","Not found this order", null); 
-    	}
+            @RequestParam("state") String state) {
+        Optional<Orders> optional = orderResponsitory.findById(id);
+        if (optional.isPresent()) {
+            Orders temp = optional.get();
+            temp.setState(state);
+            return AppUtils.returnJS(HttpStatus.OK, "OK", "Update state order success", orderResponsitory.save(temp));
+        } else {
+            return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Not found this order", null);
+        }
     }
-    
+
     @GetMapping("/param/state")
-    public ResponseEntity<ResponseObject> getOrdersByState(@RequestParam("state") String state){
-    	List<Orders> list = new ArrayList<>();
-    	
-    	try {
-			list = orderResponsitory.findAllByState(state);
-			return AppUtils.returnJS(HttpStatus.OK, "OK","Get order by state success ", list);
-		} catch (ConstraintViolationException e) {
-			// TODO: handle exception
-			return AppUtils.returnJS(HttpStatus.OK, "OK",AppUtils.getExceptionSql(e), null);
-		}
-    	
+    public ResponseEntity<ResponseObject> getOrdersByState(@RequestParam("state") String state) {
+        List<Orders> list = new ArrayList<>();
+
+        try {
+            list = orderResponsitory.findAllByState(state);
+            return AppUtils.returnJS(HttpStatus.OK, "OK", "Get order by state success ", list);
+        } catch (ConstraintViolationException e) {
+            // TODO: handle exception
+            return AppUtils.returnJS(HttpStatus.OK, "OK", AppUtils.getExceptionSql(e), null);
+        }
+
     }
-    
+
     @GetMapping("/param/state/date")
     public ResponseEntity<ResponseObject> getOrdersByStateAndCreateAtBetween(@RequestParam("state") String state,
-    																		@RequestParam("startDate") String startDate,
-    																		@RequestParam("endDate") String endDate){
-    	List<Orders> list = new ArrayList<>();
-    	String patternDate = "dd-MM-yyyy";
-    	
-    	try {
-			list = orderResponsitory.findAllByStateAndCreateAtBetweenOrderByIdDesc(state, AppUtils.stringToDate(startDate, patternDate),
-					AppUtils.stringToDate(endDate, patternDate));
-			return AppUtils.returnJS(HttpStatus.OK, "OK","Get order by state success ", list);
-		} catch (ConstraintViolationException e) {
-			// TODO: handle exception
-			return AppUtils.returnJS(HttpStatus.OK, "OK",AppUtils.getExceptionSql(e), null);
-		}
-    	
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate) {
+        List<Orders> list = new ArrayList<>();
+        String patternDate = "dd-MM-yyyy";
+
+        try {
+            list = orderResponsitory.findAllByStateAndCreateAtBetweenOrderByIdDesc(state,
+                    AppUtils.stringToDate(startDate, patternDate),
+                    AppUtils.stringToDate(endDate, patternDate));
+            return AppUtils.returnJS(HttpStatus.OK, "OK", "Get order by state success ", list);
+        } catch (ConstraintViolationException e) {
+            // TODO: handle exception
+            return AppUtils.returnJS(HttpStatus.OK, "OK", AppUtils.getExceptionSql(e), null);
+        }
+
     }
-    
-    
+
 }
