@@ -32,6 +32,8 @@ public interface ProductResponsitory extends JpaRepository<Product, Integer> {
 
 
     List<Product> findAllByCategory(Category category);
+
+	long count();
     
    
 

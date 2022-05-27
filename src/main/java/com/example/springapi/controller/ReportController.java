@@ -22,27 +22,37 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.springapi.apputil.AppUtils;
 import com.example.springapi.dto.ProductDTO;
 import com.example.springapi.models.Category;
+import com.example.springapi.models.Orders;
 import com.example.springapi.models.Product;
 import com.example.springapi.models.ProductReport;
 import com.example.springapi.models.ResponseObject;
+import com.example.springapi.models.Total;
 import com.example.springapi.repositories.CategoryResponsitory;
+import com.example.springapi.repositories.OrderResponsitory;
 import com.example.springapi.repositories.ProductResponsitory;
 import com.example.springapi.repositories.ReportRepository;
 import com.example.springapi.service.QueryMySql;
+import com.twilio.rest.media.v1.MediaProcessor.Order;
 
 @RestController
-@RequestMapping(path ="/api/v1/Reports/ProductRevenue")
+@RequestMapping(path ="/api/v1/Reports/")
 public class ReportController {
 	
 	
     @Autowired
-	ProductResponsitory reponsitory;
+	ProductResponsitory productReponsitory;
     
     @Autowired
     QueryMySql<ProductReport> queryMySql;
+
+	@Autowired
+	OrderResponsitory orderResponsitory;
+	@Autowired
+	CategoryResponsitory categoryResponsitory;
+
    
 	
-	@GetMapping("/param4")
+	@GetMapping("ProductRevenue/param4")
 	public ResponseEntity<ResponseObject> getProductRevenue(@RequestParam(value="startDate", required = false) String startDate,
 															@RequestParam(value="endDate", required = false, defaultValue = "22-2-2222") String endDate,
 															@RequestParam("limit") int limit,
@@ -73,5 +83,17 @@ public class ReportController {
 				sql,null );
 		return AppUtils.returnJS(HttpStatus.OK, "OK", "Request product revenue success", list);
 	} 
+
+	@GetMapping("total")
+	public Total getTotal(){
+		long totalProduct = productReponsitory.count();
+		long totalCategory = categoryResponsitory.count();
+		List<Orders> orders = orderResponsitory.findAllByState("Đã giao");
+		float total = 0;
+		for (Orders orders2 : orders) {
+			total += orders2.totalMountOfOrder() * (1-orders2.getDiscount().getPercent());
+		}
+		return new Total(totalProduct, totalCategory, orders.size(), total);
+	}
 
 }

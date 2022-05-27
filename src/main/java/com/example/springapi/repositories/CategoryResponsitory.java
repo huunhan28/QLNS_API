@@ -13,6 +13,7 @@ public interface CategoryResponsitory extends JpaRepository<Category, Integer>{
 
     List<Category> findByName(String name);
     Optional<Category> findById(int id);
+    long count();
 
 	
 }

@@ -83,5 +83,13 @@ public class Orders  {
         this.state = state;
     }
 
+    public float totalMountOfOrder(){
+       float total = 0;
+        for (OrderDetail orderDetail : orderDetails) {
+            total+=orderDetail.getPrice()*(1-orderDetail.getDiscount())*orderDetail.getQuantity();
+        }
+        return total;
+    }
+
     
 }
