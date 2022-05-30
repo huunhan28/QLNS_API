@@ -89,6 +89,7 @@ public class ReportController {
 		long totalProduct = productReponsitory.count();
 		long totalCategory = categoryResponsitory.count();
 		List<Orders> orders = orderResponsitory.findAllByState("Đã giao");
+		// List<Orders> orders = orderResponsitory.findAllByState(AppUtils.orderState[2]);
 		float total = 0;
 		for (Orders orders2 : orders) {
 			total += orders2.totalMountOfOrder() * (1-orders2.getDiscount().getPercent());
