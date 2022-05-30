@@ -1,7 +1,11 @@
 package com.example.springapi.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +29,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.springapi.apputil.AppUtils;
 import com.example.springapi.dto.CategoryDTO;
+import com.example.springapi.dto.CategoryWithNumProduct;
 import com.example.springapi.models.Category;
 import com.example.springapi.models.ResponseObject;
 import com.example.springapi.repositories.CategoryResponsitory;
@@ -53,7 +58,18 @@ public class CategoryController {
     @CrossOrigin(origins = "http://organicfood.com")
     @GetMapping("")
     List<Category> getAllCategorys() {
+       
         return responsitory.findAll();
+    }
+
+    @GetMapping("/numberOfProducts")
+    List<CategoryWithNumProduct> getAllCategorysWithNumberOfProduct() {
+        List<Category> list = responsitory.findAll();
+        ArrayList<CategoryWithNumProduct> response = new ArrayList<>() ;
+        for (Category category : list) {
+            response.add(new CategoryWithNumProduct(category.getName(), category.getProducts().size()));
+        }
+        return response;
     }
 
     @CrossOrigin(origins = "http://organicfood.com")

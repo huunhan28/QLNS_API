@@ -14,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 public class AppUtils {
+
+    public static String[] orderState={"Chưa duyệt", "Đã duyệt", "Đã giao", "Đã hủy"};
+
     public static ResponseEntity<ResponseObject> returnJS(HttpStatus httpStatus, String status,
     String message, Object object) {
 

@@ -25,6 +25,7 @@ public interface OrderResponsitory extends JpaRepository<Orders, Integer>{
 	List<Orders> findAllByStateAndCreateAtBetweenOrderByIdDesc(String state, Date startDate, Date endDate);
     List<Orders> findAllByUserIdOrderByIdDesc(int userId);
     Optional<Orders> findTopByOrderByIdDesc();
+    long count();
     
 
 //    @Query(value = "select new com.example.springapi.dto.OrderWithProducts(a.id,"
