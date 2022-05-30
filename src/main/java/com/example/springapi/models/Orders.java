@@ -1,6 +1,5 @@
 package com.example.springapi.models;
 
-
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -41,10 +40,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="orders")
-public class Orders  {
-
-    
+@Table(name = "orders")
+public class Orders {
 
     @Id
     @Column(name = "order_id")
@@ -52,27 +49,25 @@ public class Orders  {
     private int id;
 
     @ManyToOne
-	@JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Temporal(TemporalType.DATE)
-	@DateTimeFormat(pattern = "dd/MM/yyyy")
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
     @Column(name = "create_at")
     private Date createAt;
 
     // @ManyToOne
-	// @JoinColumn(name = "id")//
+    // @JoinColumn(name = "id")//
     @ManyToOne
-//	@MapsId("id")
-//    @Null
-	@JoinColumn(
-			name = "discount_id"
-			) 
+    // @MapsId("id")
+    // @Null
+    @JoinColumn(name = "discount_id")
     private Discount discount;
 
     private String state;
-    
-//    @JsonIgnore
+
+    // @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "order")
     private List<OrderDetail> orderDetails;
 
@@ -83,13 +78,12 @@ public class Orders  {
         this.state = state;
     }
 
-    public float totalMountOfOrder(){
-       float total = 0;
+    public float totalMountOfOrder() {
+        float total = 0;
         for (OrderDetail orderDetail : orderDetails) {
-            total+=orderDetail.getPrice()*(1-orderDetail.getDiscount())*orderDetail.getQuantity();
+            total += orderDetail.getPrice() * (1 - orderDetail.getDiscount()) * orderDetail.getQuantity();
         }
         return total;
     }
 
-    
 }
