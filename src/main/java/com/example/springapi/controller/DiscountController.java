@@ -78,6 +78,7 @@ public class DiscountController {
 
 	// insert new Discount with POST method
 	// Postman : Raw, JSON
+	@CrossOrigin(origins = "http://organicfood.com")
 	@PostMapping("/insert")
 	ResponseEntity<ResponseObject> insertDiscount(@RequestBody Discount newDiscount) {
 		return ResponseEntity.status(HttpStatus.OK).body(

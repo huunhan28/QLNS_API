@@ -31,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -73,6 +74,7 @@ public class OrderController {
         return mapperService.mapList(orderResponsitory.findAll(), OrderDTO.class);
     }
 
+    @CrossOrigin(origins = "http://organicfood.com")
     @GetMapping("/OrderWithProducts/{id}")
     ResponseEntity<ResponseObject> getOrderWithProducts(@PathVariable("id") int id) {
         String sql = "select a.order_id id, c.name productName, quantity, price, discount "
@@ -85,11 +87,13 @@ public class OrderController {
                 mysql.select(OrderWithProducts.class.getName(), sql, null));
     }
 
+    @CrossOrigin(origins = "http://organicfood.com")
     @GetMapping("user/{userId}")
     List<Orders> getAllOrdersByUserId(@PathVariable int userId) {
         return orderResponsitory.findAllByUserIdOrderByIdDesc(userId);
     }
 
+    @CrossOrigin(origins = "http://organicfood.com")
     @GetMapping("/{id}")
     ResponseEntity<ResponseObject> getProduct(@PathVariable int id) {
         Optional<Orders> findOrder = orderResponsitory.findById(id);
@@ -114,6 +118,7 @@ public class OrderController {
     // );
     // }
 
+    @CrossOrigin(origins = "http://organicfood.com")
     @PostMapping("/insert")
     ResponseEntity<ResponseObject> insertOrder(@RequestBody OrderDTO newOrderDTO) {
         Optional<User> user = userResponsitory.findById(newOrderDTO.getUserId());
@@ -173,6 +178,7 @@ public class OrderController {
                 new ResponseObject("ok", "Insert Order successfully", orderResponsitory.save(order)));
     }
 
+    @CrossOrigin(origins = "http://organicfood.com")
     @PutMapping("/updateState/{id}")
     public ResponseEntity<ResponseObject> updateStateByOrderId(@PathVariable("id") int id,
             @RequestParam("state") String state) {
@@ -186,6 +192,7 @@ public class OrderController {
         }
     }
 
+    @CrossOrigin(origins = "http://organicfood.com")
     @GetMapping("/param/state")
     public ResponseEntity<ResponseObject> getOrdersByState(@RequestParam("state") String state) {
         List<Orders> list = new ArrayList<>();
@@ -200,6 +207,7 @@ public class OrderController {
 
     }
 
+    @CrossOrigin(origins = "http://organicfood.com")
     @GetMapping("/param/state/date")
     public ResponseEntity<ResponseObject> getOrdersByStateAndCreateAtBetween(@RequestParam("state") String state,
             @RequestParam("startDate") String startDate,
