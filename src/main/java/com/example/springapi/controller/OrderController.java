@@ -83,6 +83,17 @@ public class OrderController {
         return orderResponsitory.findAll();
     }
 
+    @CrossOrigin(origins = "http://organicfood.com")
+    @GetMapping("/sort")
+    List<Orders> getAllOrdersAndSort(@RequestParam("type") String type) {
+        if(type.equalsIgnoreCase("DESC")){
+            return orderResponsitory.findByOrderByIdDesc();
+        }else{
+            return orderResponsitory.findByOrderByIdAsc();
+        }
+        
+    }
+
     @GetMapping("/dto")
     List<OrderDTO> getAllOrdersDTO() {
         return mapperService.mapList(orderResponsitory.findAll(), OrderDTO.class);
@@ -289,6 +300,7 @@ public class OrderController {
             // this.emailSender.send(message);
         }
 
+      
         // send noti
         Pusher pusher = new Pusher("1415740", "747cc4a7b5556aa81191",
                 "97a46823bde563531c09");
