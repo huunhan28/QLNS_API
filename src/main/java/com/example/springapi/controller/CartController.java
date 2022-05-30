@@ -3,6 +3,8 @@ package com.example.springapi.controller;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.springapi.apputil.AppUtils;
+
 // import javax.transaction.Transactional;
 
 import com.example.springapi.dto.CartDTO;
@@ -93,7 +95,9 @@ public class CartController {
     ResponseEntity<ResponseObject> insertOrderDetail(@RequestBody CartDTO newCartDTO) {
         
         Optional<User> user=userResponsitory.findById(newCartDTO.getUserId());
+        if(!user.isPresent()) return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "User not found", null);
         Optional<Product> product=productResponsitory.findById(newCartDTO.getProductId());
+        if(!product.isPresent()) return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Product not found", null);
         Optional<Cart> carOptional = cartResponsitory.findByIdProductIdAndIdUserId(newCartDTO.getProductId(), newCartDTO.getUserId());
        int quantity = newCartDTO.getQuantity();
         if(carOptional.isPresent()) {
