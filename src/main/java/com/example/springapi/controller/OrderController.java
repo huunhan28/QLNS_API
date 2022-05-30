@@ -289,6 +289,15 @@ public class OrderController {
             // this.emailSender.send(message);
         }
 
+        // send noti
+        Pusher pusher = new Pusher("1415740", "747cc4a7b5556aa81191",
+                "97a46823bde563531c09");
+        pusher.setCluster("ap1");
+        pusher.setEncrypted(true);
+
+        pusher.trigger("my-channel", "my-event", Collections.singletonMap("message",
+                "hello world"));
+
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("ok", "Insert Order successfully", ordered));
     }
