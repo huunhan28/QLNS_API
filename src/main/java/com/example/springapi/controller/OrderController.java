@@ -12,14 +12,19 @@ import com.example.springapi.dto.OrderDTO;
 import com.example.springapi.dto.OrderWithProducts;
 import com.example.springapi.dto.ProductDTO;
 import com.example.springapi.mapper.MapperService;
+import com.example.springapi.models.Cart;
 import com.example.springapi.models.Discount;
 import com.example.springapi.models.OrderDetail;
+import com.example.springapi.models.OrderDetailKey;
 import com.example.springapi.models.Orders;
 import com.example.springapi.models.ResponseObject;
+import com.example.springapi.repositories.CartResponsitory;
 import com.example.springapi.repositories.DiscountResponsitory;
+import com.example.springapi.repositories.OrderDetailResponsitory;
 import com.example.springapi.repositories.OrderResponsitory;
 import com.example.springapi.security.repository.UserRepository;
 import com.example.springapi.service.QueryMySql;
+import com.twilio.rest.media.v1.MediaProcessor.Order;
 
 import lombok.Setter;
 
@@ -51,6 +56,12 @@ public class OrderController {
 
     @Autowired
     OrderResponsitory orderResponsitory;
+
+    @Autowired
+    CartResponsitory cartResponsitory;
+
+    @Autowired
+    OrderDetailResponsitory orderDetailResponsitory;
 
     @Autowired
     UserRepository userResponsitory;
@@ -144,6 +155,7 @@ public class OrderController {
         }
         // Create a Simple MailMessage.
         SimpleMailMessage message = new SimpleMailMessage();
+    
         Optional<Orders> optionalOrder = orderResponsitory.findTopByOrderByIdDesc();
         // String productName = "";
         // if(optionalOrder.isPresent()) {
@@ -178,6 +190,98 @@ public class OrderController {
                 new ResponseObject("ok", "Insert Order successfully", orderResponsitory.save(order)));
     }
 
+
+    @CrossOrigin(origins = "http://organicfood.com")
+    @PostMapping("/insert/v2")
+    ResponseEntity<ResponseObject> insertOrderV2(@RequestBody OrderDTO newOrderDTO) {
+        
+        List<Cart> listCart = cartResponsitory.findAllByUserId(newOrderDTO.getUserId());
+        if(listCart.size()==0)
+        return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "No product in your cart", null);
+        Optional<Discount> discount = null;
+        Optional<User> user = userResponsitory.findById(newOrderDTO.getUserId());
+        Orders order;
+        float km = 0;
+        if (newOrderDTO.getDiscountId() != null) {
+            discount = discountResponsitory.findById(newOrderDTO.getDiscountId());
+
+            order = new Orders(
+                    user.get(),
+                    newOrderDTO.getCreateAt(),
+                    discount.get(),
+                    newOrderDTO.getState());
+            km = discount.get().getPercent();
+
+        } else {
+            order = new Orders(
+                    user.get(),
+                    newOrderDTO.getCreateAt(),
+                    null,
+                    newOrderDTO.getState());
+        }
+        // Create a Simple MailMessage.
+        SimpleMailMessage message = new SimpleMailMessage();
+        Orders ordered  = null;
+        try {
+           ordered = orderResponsitory.save(order) ;
+        } catch (Exception e) {
+            return AppUtils.returnJS(HttpStatus.NOT_IMPLEMENTED, "Failed", "Insert order failed", null);
+        }
+        Optional<Orders> optionalOrder = orderResponsitory.findTopByOrderByIdDesc();
+        // let insert order details follow cart of user
+        int orderId = 100;
+        String productName ="";
+        if (optionalOrder.isPresent())
+            orderId = optionalOrder.get().getId();
+        for (Cart cart : listCart) {
+            try {
+                if(productName.length()>0) {
+                    productName+="\n";}
+                    else{
+                        productName+=cart.getProduct().getName() + "1x" + cart.getQuantity();
+                    }
+                orderDetailResponsitory.save(new OrderDetail(
+                    new OrderDetailKey(orderId, cart.getProduct().getProductId()), 
+                    optionalOrder.get(),
+                    cart.getProduct(),
+                    cart.getQuantity(),
+                    cart.getProduct().getPrice(),
+                    km));
+            } catch (Exception e) {
+                //TODO: handle exception
+            }
+        }
+        // String productName = "";
+        // if(optionalOrder.isPresent()) {
+        // List<OrderDetail> list = optionalOrder.get().getOrderDetails();
+        // list.forEach(orderDetail ->{
+        // 
+        //
+        // }
+        // productName += orderDetail.getProduct().getName() + " 1x" +
+        // orderDetail.getQuantity();
+        // });
+        // }
+       
+        if (user.get().getEmail() != null && !user.get().getEmail().equals("")) {
+            message.setTo(user.get().getEmail());
+            message.setSubject("Organic Food");
+            message.setText("Thanks for your order\n" +
+                    "Order information: \n" +
+                    "Order ID: " + orderId + "\n" +
+                    "Your name: " + order.getUser().getName() + "\n" +
+                    "Date: " + new SimpleDateFormat("dd/MM/yyyy)").format(order.getCreateAt()) + "\n" +
+                    "State: Waiting" + "\n"+
+                    "List of products:" + "\n" + 
+                    productName);
+
+            // Send Message!
+            // this.emailSender.send(message);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("ok", "Insert Order successfully", ordered));
+    }
     @CrossOrigin(origins = "http://organicfood.com")
     @PutMapping("/updateState/{id}")
     public ResponseEntity<ResponseObject> updateStateByOrderId(@PathVariable("id") int id,
