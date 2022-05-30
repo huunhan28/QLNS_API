@@ -2,6 +2,7 @@ package com.example.springapi.controller;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -20,6 +21,7 @@ import com.example.springapi.repositories.DiscountResponsitory;
 import com.example.springapi.repositories.OrderResponsitory;
 import com.example.springapi.security.repository.UserRepository;
 import com.example.springapi.service.QueryMySql;
+import com.pusher.rest.Pusher;
 
 import lombok.Setter;
 
@@ -64,6 +66,7 @@ public class OrderController {
     @Autowired
     MapperService mapperService;
 
+    @CrossOrigin(origins = "http://organicfood.com")
     @GetMapping("")
     List<Orders> getAllOrders() {
         return orderResponsitory.findAll();
@@ -173,6 +176,14 @@ public class OrderController {
             // Send Message!
             // this.emailSender.send(message);
         }
+        // send noti
+        // Pusher pusher = new Pusher("1415740", "747cc4a7b5556aa81191",
+        // "97a46823bde563531c09");
+        // pusher.setCluster("ap1");
+        // pusher.setEncrypted(true);
+
+        // pusher.trigger("my-channel", "my-event", Collections.singletonMap("message",
+        // "hello world"));
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("ok", "Insert Order successfully", orderResponsitory.save(order)));

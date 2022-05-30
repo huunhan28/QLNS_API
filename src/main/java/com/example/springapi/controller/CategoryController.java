@@ -58,14 +58,14 @@ public class CategoryController {
     @CrossOrigin(origins = "http://organicfood.com")
     @GetMapping("")
     List<Category> getAllCategorys() {
-       
+
         return responsitory.findAll();
     }
 
     @GetMapping("/numberOfProducts")
     List<CategoryWithNumProduct> getAllCategorysWithNumberOfProduct() {
         List<Category> list = responsitory.findAll();
-        ArrayList<CategoryWithNumProduct> response = new ArrayList<>() ;
+        ArrayList<CategoryWithNumProduct> response = new ArrayList<>();
         for (Category category : list) {
             response.add(new CategoryWithNumProduct(category.getName(), category.getProducts().size()));
         }
