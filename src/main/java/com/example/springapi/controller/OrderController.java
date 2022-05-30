@@ -2,6 +2,7 @@ package com.example.springapi.controller;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -24,6 +25,7 @@ import com.example.springapi.repositories.OrderDetailResponsitory;
 import com.example.springapi.repositories.OrderResponsitory;
 import com.example.springapi.security.repository.UserRepository;
 import com.example.springapi.service.QueryMySql;
+import com.pusher.rest.Pusher;
 import com.twilio.rest.media.v1.MediaProcessor.Order;
 
 import lombok.Setter;
@@ -75,6 +77,7 @@ public class OrderController {
     @Autowired
     MapperService mapperService;
 
+    @CrossOrigin(origins = "http://organicfood.com")
     @GetMapping("")
     List<Orders> getAllOrders() {
         return orderResponsitory.findAll();
@@ -155,7 +158,7 @@ public class OrderController {
         }
         // Create a Simple MailMessage.
         SimpleMailMessage message = new SimpleMailMessage();
-    
+
         Optional<Orders> optionalOrder = orderResponsitory.findTopByOrderByIdDesc();
         // String productName = "";
         // if(optionalOrder.isPresent()) {
@@ -185,19 +188,26 @@ public class OrderController {
             // Send Message!
             // this.emailSender.send(message);
         }
+        // send noti
+        // Pusher pusher = new Pusher("1415740", "747cc4a7b5556aa81191",
+        // "97a46823bde563531c09");
+        // pusher.setCluster("ap1");
+        // pusher.setEncrypted(true);
+
+        // pusher.trigger("my-channel", "my-event", Collections.singletonMap("message",
+        // "hello world"));
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("ok", "Insert Order successfully", orderResponsitory.save(order)));
     }
 
-
     @CrossOrigin(origins = "http://organicfood.com")
     @PostMapping("/insert/v2")
     ResponseEntity<ResponseObject> insertOrderV2(@RequestBody OrderDTO newOrderDTO) {
-        
+
         List<Cart> listCart = cartResponsitory.findAllByUserId(newOrderDTO.getUserId());
-        if(listCart.size()==0)
-        return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "No product in your cart", null);
+        if (listCart.size() == 0)
+            return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "No product in your cart", null);
         Optional<Discount> discount = null;
         Optional<User> user = userResponsitory.findById(newOrderDTO.getUserId());
         Orders order;
@@ -221,48 +231,48 @@ public class OrderController {
         }
         // Create a Simple MailMessage.
         SimpleMailMessage message = new SimpleMailMessage();
-        Orders ordered  = null;
+        Orders ordered = null;
         try {
-           ordered = orderResponsitory.save(order) ;
+            ordered = orderResponsitory.save(order);
         } catch (Exception e) {
             return AppUtils.returnJS(HttpStatus.NOT_IMPLEMENTED, "Failed", "Insert order failed", null);
         }
         Optional<Orders> optionalOrder = orderResponsitory.findTopByOrderByIdDesc();
         // let insert order details follow cart of user
         int orderId = 100;
-        String productName ="";
+        String productName = "";
         if (optionalOrder.isPresent())
             orderId = optionalOrder.get().getId();
         for (Cart cart : listCart) {
             try {
-                if(productName.length()>0) {
-                    productName+="\n";}
-                    else{
-                        productName+=cart.getProduct().getName() + "1x" + cart.getQuantity();
-                    }
+                if (productName.length() > 0) {
+                    productName += "\n";
+                } else {
+                    productName += cart.getProduct().getName() + "1x" + cart.getQuantity();
+                }
                 orderDetailResponsitory.save(new OrderDetail(
-                    new OrderDetailKey(orderId, cart.getProduct().getProductId()), 
-                    optionalOrder.get(),
-                    cart.getProduct(),
-                    cart.getQuantity(),
-                    cart.getProduct().getPrice(),
-                    km));
+                        new OrderDetailKey(orderId, cart.getProduct().getProductId()),
+                        optionalOrder.get(),
+                        cart.getProduct(),
+                        cart.getQuantity(),
+                        cart.getProduct().getPrice(),
+                        km));
             } catch (Exception e) {
-                //TODO: handle exception
+                // TODO: handle exception
             }
         }
         // String productName = "";
         // if(optionalOrder.isPresent()) {
         // List<OrderDetail> list = optionalOrder.get().getOrderDetails();
         // list.forEach(orderDetail ->{
-        // 
+        //
         //
         // }
         // productName += orderDetail.getProduct().getName() + " 1x" +
         // orderDetail.getQuantity();
         // });
         // }
-       
+
         if (user.get().getEmail() != null && !user.get().getEmail().equals("")) {
             message.setTo(user.get().getEmail());
             message.setSubject("Organic Food");
@@ -271,17 +281,27 @@ public class OrderController {
                     "Order ID: " + orderId + "\n" +
                     "Your name: " + order.getUser().getName() + "\n" +
                     "Date: " + new SimpleDateFormat("dd/MM/yyyy)").format(order.getCreateAt()) + "\n" +
-                    "State: Waiting" + "\n"+
-                    "List of products:" + "\n" + 
+                    "State: Waiting" + "\n" +
+                    "List of products:" + "\n" +
                     productName);
 
             // Send Message!
             // this.emailSender.send(message);
         }
 
+        // send noti
+        Pusher pusher = new Pusher("1415740", "747cc4a7b5556aa81191",
+                "97a46823bde563531c09");
+        pusher.setCluster("ap1");
+        pusher.setEncrypted(true);
+
+        pusher.trigger("my-channel", "my-event", Collections.singletonMap("message",
+                "hello world"));
+
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("ok", "Insert Order successfully", ordered));
     }
+
     @CrossOrigin(origins = "http://organicfood.com")
     @PutMapping("/updateState/{id}")
     public ResponseEntity<ResponseObject> updateStateByOrderId(@PathVariable("id") int id,

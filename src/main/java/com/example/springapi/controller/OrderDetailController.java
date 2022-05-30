@@ -16,57 +16,64 @@ import com.example.springapi.repositories.UserResponsitory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path ="/api/v1/OrderDetails")
+@RequestMapping(path = "/api/v1/OrderDetails")
 public class OrderDetailController {
 
     @Autowired
-	OrderDetailResponsitory orderDetailResponsitory;
+    OrderDetailResponsitory orderDetailResponsitory;
 
     @Autowired
-	OrderResponsitory orderResponsitory;
+    OrderResponsitory orderResponsitory;
 
     @Autowired
     ProductResponsitory productResponsitory;
 
-    //insert new OrderDetail with POST method
-    //Postman : Raw, JSON
+    // insert new OrderDetail with POST method
+    // Postman : Raw, JSON
+    @CrossOrigin(origins = "http://organicfood.com")
     @PostMapping("/insert")
     ResponseEntity<ResponseObject> insertOrderDetail(@RequestBody OrderDetailDTO newOrderDetailDTO) {
-        Optional<Orders> order=orderResponsitory.findById(newOrderDetailDTO.getOrderId());
+        Optional<Orders> order = orderResponsitory.findById(newOrderDetailDTO.getOrderId());
         System.out.println(order.get().getId());
-        Optional<Product> product=productResponsitory.findById(newOrderDetailDTO.getProductId());
-        
-        OrderDetail newOrderDetail=new OrderDetail(new OrderDetailKey(
-                                                                        order.get().getId(),
-                                                                        
-                                                                        product.get().getId()),
-                                                    order.get(),
-                                                    product.get(),
-                                                    newOrderDetailDTO.getQuantity(),
-                                                    newOrderDetailDTO.getPrice(),
-                                                    newOrderDetailDTO.getDiscount());
+        Optional<Product> product = productResponsitory.findById(newOrderDetailDTO.getProductId());
+
+        OrderDetail newOrderDetail = new OrderDetail(new OrderDetailKey(
+                order.get().getId(),
+
+                product.get().getId()),
+                order.get(),
+                product.get(),
+                newOrderDetailDTO.getQuantity(),
+                newOrderDetailDTO.getPrice(),
+                newOrderDetailDTO.getDiscount());
         return ResponseEntity.status(HttpStatus.OK).body(
-           new ResponseObject("ok", "Insert OrderDetail successfully", orderDetailResponsitory.save(newOrderDetail))
-        );//
+                new ResponseObject("ok", "Insert OrderDetail successfully",
+                        orderDetailResponsitory.save(newOrderDetail)));//
     }
 
     // @PostMapping("/insert")
-    // ResponseEntity<ResponseObject> insertOrderDetail2(@RequestBody OrderDetailDTO newOrderDetailDTO) {
-        
-    //     Optional<Orders> order=orderResponsitory.findById(newOrderDetailDTO.getOrderId());
-    //     Optional<Product> product=productResponsitory.findById(newOrderDetailDTO.getProductId());
-    //     Cart newCart=new Cart(	new CartKey(user.get().getId(), product.get().getId()),
-    //                             user.get(),
-	// 							product.get(),
-	// 							newCartDTO.getQuantity());
-    //     return ResponseEntity.status(HttpStatus.OK).body(
-    //        new ResponseObject("ok", "Insert OrderDetail successfully", cartResponsitory.save(newCart))
-    //     );
+    // ResponseEntity<ResponseObject> insertOrderDetail2(@RequestBody OrderDetailDTO
+    // newOrderDetailDTO) {
+
+    // Optional<Orders>
+    // order=orderResponsitory.findById(newOrderDetailDTO.getOrderId());
+    // Optional<Product>
+    // product=productResponsitory.findById(newOrderDetailDTO.getProductId());
+    // Cart newCart=new Cart( new CartKey(user.get().getId(),
+    // product.get().getId()),
+    // user.get(),
+    // product.get(),
+    // newCartDTO.getQuantity());
+    // return ResponseEntity.status(HttpStatus.OK).body(
+    // new ResponseObject("ok", "Insert OrderDetail successfully",
+    // cartResponsitory.save(newCart))
+    // );
     // }
 }
