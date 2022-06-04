@@ -26,6 +26,8 @@ public interface OrderResponsitory extends JpaRepository<Orders, Integer>{
     List<Orders> findAllByUserIdOrderByIdDesc(int userId);
     Optional<Orders> findTopByOrderByIdDesc();
     long count();
+    List<Orders> findByOrderByIdDesc();
+    List<Orders> findByOrderByIdAsc();
     
 
 //    @Query(value = "select new com.example.springapi.dto.OrderWithProducts(a.id,"
