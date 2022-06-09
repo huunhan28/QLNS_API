@@ -153,8 +153,14 @@ public class ProductController {
 
     // update, upsert = update if found, otherwise insert
     @CrossOrigin(origins = "http://organicfood.com")
-    @PutMapping("/{id}")
-    ResponseEntity<ResponseObject> updateProduct(@RequestBody ProductDTO newProductDTO, @PathVariable int id) {
+
+    @PutMapping(value = "/{id}", consumes = {
+        MediaType.APPLICATION_JSON_VALUE,
+        MediaType.MULTIPART_FORM_DATA_VALUE
+})
+    ResponseEntity<ResponseObject> updateProduct(@RequestPart("product") ProductDTO newProductDTO,
+    @RequestPart("file") MultipartFile file,
+     @PathVariable int id) {
         Optional<Category> category = categoryResponsitory.findById(newProductDTO.getCategoryId());
         Product newProduct = new Product(newProductDTO.getProductId(),
                 category.isPresent() ? category.get() : null,
@@ -188,6 +194,9 @@ public class ProductController {
                     return responsitory.save(product);
                 }).orElseGet(() -> {
                     newProduct.setProductId(id);
+                    FileDB fileDB = uploadFileService.uploadFileToLocalAndDB(file);
+                    System.out.println("sau khi ep kieu");
+                    newProduct.setImage(fileDB);
                     return responsitory.save(newProduct);
                 });
         return ResponseEntity.status(HttpStatus.OK).body(
