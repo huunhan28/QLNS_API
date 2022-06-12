@@ -27,7 +27,10 @@ public class Comment {
     
     @Id
     @Column(name="product_id")
-    private int id;
+    private int productId;
+
+    @Column(name = "order_id")
+    private int orderId;
 
     @Column(name = "create_at")
     @Temporal(TemporalType.DATE)

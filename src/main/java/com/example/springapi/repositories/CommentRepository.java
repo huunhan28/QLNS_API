@@ -10,7 +10,8 @@ import com.example.springapi.models.Comment;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Integer>{
-	List<Comment> findByIdOrderByCreateAtDesc(int id);
+	List<Comment> findByProductIdOrderByCreateAtDesc(int productId);
+    Optional<Comment> findTopByOrderIdOrderByCreateAtDesc(int orderId);
 	long deleteById(int id);
 	List<Comment> findById(int id);
 }
