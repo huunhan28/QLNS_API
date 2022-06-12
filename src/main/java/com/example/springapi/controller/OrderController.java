@@ -259,7 +259,7 @@ public class OrderController {
                 if (productName.length() > 0) {
                     productName += "\n";
                 } else {
-                    productName += cart.getProduct().getName() + "1x" + cart.getQuantity();
+                    productName += cart.getProduct().getName() + " 1x" + cart.getQuantity();
                 }
                 orderDetailResponsitory.save(new OrderDetail(
                         new OrderDetailKey(orderId, cart.getProduct().getProductId()),
@@ -297,7 +297,7 @@ public class OrderController {
                     productName);
 
             // Send Message!
-            // this.emailSender.send(message);
+            this.emailSender.send(message);
         }
 
       
@@ -311,7 +311,7 @@ public class OrderController {
                 "hello world"));
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Insert Order successfully", ordered));
+                new ResponseObject("Ok", "Insert Order successfully", ordered));
     }
 
     @CrossOrigin(origins = "http://organicfood.com")

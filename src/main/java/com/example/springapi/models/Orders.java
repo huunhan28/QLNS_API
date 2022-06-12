@@ -71,6 +71,9 @@ public class Orders {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "order")
     private List<OrderDetail> orderDetails;
 
+
+    private boolean commented;
+
     public Orders(User user, Date createAt, Discount discount, String state) {
         this.user = user;
         this.createAt = createAt;
