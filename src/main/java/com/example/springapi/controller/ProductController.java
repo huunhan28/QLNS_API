@@ -32,6 +32,7 @@ import com.example.springapi.requestmodel.DiscountRequest;
 import com.example.springapi.service.QueryMySql;
 import com.example.springapi.service.UploadFileService;
 import com.example.springapi.uploadfile.model.FileDB;
+import com.example.springapi.uploadfile.repository.FileDBRepository;
 
 @RestController
 @RequestMapping(path = "/api/v1/Products")
@@ -44,6 +45,11 @@ public class ProductController {
 
     @Autowired
     CategoryResponsitory categoryResponsitory;
+
+    @Autowired
+    FileDBRepository fileDBRepository;
+
+    FileDB temp=null;
 
     @CrossOrigin(origins = "http://organicfood.com")
     @GetMapping("")
@@ -161,6 +167,7 @@ public class ProductController {
     ResponseEntity<ResponseObject> updateProduct(@RequestPart("product") ProductDTO newProductDTO,
     @RequestPart("file") MultipartFile file,
      @PathVariable int id) {
+     
         Optional<Category> category = categoryResponsitory.findById(newProductDTO.getCategoryId());
         Product newProduct = new Product(newProductDTO.getProductId(),
                 category.isPresent() ? category.get() : null,
@@ -191,14 +198,19 @@ public class ProductController {
                     product.setId(newProductDTO.getId());
                     product.setUrl(newProductDTO.getUrl());
                     product.setYear(newProductDTO.getYear());
-                    return responsitory.save(product);
-                }).orElseGet(() -> {
-                    newProduct.setProductId(id);
+                    // delete old file
+                    temp = product.getImage();
                     FileDB fileDB = uploadFileService.uploadFileToLocalAndDB(file);
                     System.out.println("sau khi ep kieu");
-                    newProduct.setImage(fileDB);
+                    product.setImage(fileDB);
+                    Product productTemp = responsitory.save(product);
+                    fileDBRepository.deleteById(temp.getId());
+                    return productTemp;
+                    
+                }).orElseGet(() -> {
                     return responsitory.save(newProduct);
                 });
+
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("ok", "Update Product successfully", updatedProduct));
     }

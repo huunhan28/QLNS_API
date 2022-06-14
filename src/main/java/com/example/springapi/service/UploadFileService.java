@@ -36,10 +36,8 @@ public class UploadFileService {
 	FileDBService fileDBService;
 	
 	public FileDB uploadFileToLocalAndDB(MultipartFile file) {
-		System.out.println("Vao file service");
 		   String message = "";
 	 		String fileName = fileStorageService.storeFile(file);
-	 		System.out.println("done store to local");
 	 		String fileDownloadUri = ServletUriComponentsBuilder
 	 				.fromCurrentContextPath()
 	 				.path(url)
@@ -47,11 +45,10 @@ public class UploadFileService {
 	 				.toUriString();
 	 		Optional<FileDB> optionalFile = fileDBService.findByName(fileName);
 	 		
-	 		System.out.println("find by name");
+	
 	 		FileDB fileDB = null;
 	 		try {
 	 			if (optionalFile.isPresent()) {// update new file
-	 				System.out.println("in case upddate file");
 	 				fileDB = fileDBService.updateFileDB(file, fileDownloadUri, optionalFile.get());
 	 				message = "Updated file successfully: " + file.getOriginalFilename();
 

@@ -56,6 +56,12 @@ public class FileDBServiceImpl implements FileDBService {
 		}
 		return fileDBRepository.save(fileDB);
 	}
+
+	@Override
+	public void deleteFile(FileDB fileDB) {
+		// TODO Auto-generated method stub
+		 fileDBRepository.deleteById(fileDB.getId());
+	}
 	
 	
 }

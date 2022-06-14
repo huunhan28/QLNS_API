@@ -18,4 +18,6 @@ public interface FileDBService {
 	Optional<FileDB> findByName(String name);
 	
 	FileDB updateFileDB(MultipartFile file, String url, FileDB oldFileDB);
+
+	void deleteFile(FileDB fileDB);
 }
