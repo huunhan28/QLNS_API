@@ -3,7 +3,9 @@ package com.example.springapi.controller;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -55,6 +57,7 @@ public class OrderController {
 
     @Autowired
     public JavaMailSender emailSender;
+
 
     @Autowired
     OrderResponsitory orderResponsitory;
@@ -302,13 +305,21 @@ public class OrderController {
 
       
         // send noti
-        Pusher pusher = new Pusher("1415740", "747cc4a7b5556aa81191",
-                "97a46823bde563531c09");
-        pusher.setCluster("ap1");
-        pusher.setEncrypted(true);
-
-        pusher.trigger("my-channel", "my-event", Collections.singletonMap("message",
-                "hello world"));
+       // change quantity km
+       if(km !=0){
+        try {
+            Discount discountTemp = ordered.getDiscount();
+            int quantity = discountTemp.getQuantity() - 1;
+            if(quantity <  0)
+            discountTemp.setQuantity(0);
+            else discountTemp.setQuantity(quantity);
+            discountResponsitory.save(discountTemp);
+        } catch (Exception e) {
+            //TODO: handle exception
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+                new ResponseObject("Failed", "Update quantity discount failed", ordered));
+        }
+       }
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("Ok", "Insert Order successfully", ordered));
@@ -322,6 +333,22 @@ public class OrderController {
         if (optional.isPresent()) {
             Orders temp = optional.get();
             temp.setState(state);
+            Pusher pusher = new Pusher("1423362", "1988f25a6056e9b32057", "11020a120a866f41129c");
+            pusher.setCluster("ap1");
+            pusher.setEncrypted(true);
+            Orders orders = null;
+            try {
+                orders = orderResponsitory.save(temp);
+            } catch (Exception e) {
+                return AppUtils.returnJS(HttpStatus.OK, "Failed", "Update state order fail", e.getMessage());
+            }
+            HashMap<String, String> message = new HashMap<>();
+            message.put("title", "Xác nhận đơn hàng");
+            message.put("description", "Đơn hàng " + orders.getId() + " của bạn đã được duyệt");
+            message.put("orderId", orders.getId() + "");
+            message.put("userId", orders.getUser().getId() + "");
+
+            pusher.trigger("my-channel", "my-event", message);
             return AppUtils.returnJS(HttpStatus.OK, "OK", "Update state order success", orderResponsitory.save(temp));
         } else {
             return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Not found this order", null);
