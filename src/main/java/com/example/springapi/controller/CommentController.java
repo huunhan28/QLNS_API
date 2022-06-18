@@ -26,13 +26,13 @@ public class CommentController {
 	CommentRepository repository;
 
 	@GetMapping("productId/{id}")
-	public List<Comment> getAllCommentByProductId(@PathVariable("id") int id) {
-		return repository.findByProductIdOrderByCreateAtDesc(id);
+	public List<Comment> getAllCommentByProductId(@PathVariable("id") String id) {
+		return repository.findByIdContainsOrderByCreateAtDesc("productId"+id);
 	}
 
 	@GetMapping("orderId/{id}")
-	public ResponseEntity<ResponseObject> getAllCommentByOrderId(@PathVariable("id") int id) {
-		Optional<Comment> optional = repository.findTopByOrderIdOrderByCreateAtDesc(id);
+	public ResponseEntity<ResponseObject> getAllCommentByOrderId(@PathVariable("id") String id) {
+		Optional<Comment> optional = repository.findTopByIdContainsOrderByCreateAtDesc( "orderId" + id);
 		if (optional.isPresent()) {
 			return AppUtils.returnJS(HttpStatus.OK, "OK", "Comment of order success", optional.get());
 		}else{

@@ -3,6 +3,7 @@ package com.example.springapi.controller;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,12 +17,15 @@ import com.example.springapi.dto.OrderWithProducts;
 import com.example.springapi.dto.ProductDTO;
 import com.example.springapi.mapper.MapperService;
 import com.example.springapi.models.Cart;
+import com.example.springapi.models.Comment;
 import com.example.springapi.models.Discount;
 import com.example.springapi.models.OrderDetail;
 import com.example.springapi.models.OrderDetailKey;
 import com.example.springapi.models.Orders;
+import com.example.springapi.models.PKOfComment;
 import com.example.springapi.models.ResponseObject;
 import com.example.springapi.repositories.CartResponsitory;
+import com.example.springapi.repositories.CommentRepository;
 import com.example.springapi.repositories.DiscountResponsitory;
 import com.example.springapi.repositories.OrderDetailResponsitory;
 import com.example.springapi.repositories.OrderResponsitory;
@@ -76,6 +80,9 @@ public class OrderController {
 
     @Autowired
     QueryMySql<OrderWithProducts> mysql;
+
+    @Autowired
+    CommentRepository commentRepository;
 
     @Autowired
     MapperService mapperService;
@@ -333,23 +340,27 @@ public class OrderController {
         if (optional.isPresent()) {
             Orders temp = optional.get();
             temp.setState(state);
-            Pusher pusher = new Pusher("1423362", "1988f25a6056e9b32057", "11020a120a866f41129c");
-            pusher.setCluster("ap1");
-            pusher.setEncrypted(true);
+          
             Orders orders = null;
             try {
                 orders = orderResponsitory.save(temp);
             } catch (Exception e) {
                 return AppUtils.returnJS(HttpStatus.OK, "Failed", "Update state order fail", e.getMessage());
             }
-            HashMap<String, String> message = new HashMap<>();
-            message.put("title", "Xác nhận đơn hàng");
-            message.put("description", "Đơn hàng " + orders.getId() + " của bạn đã được duyệt");
-            message.put("orderId", orders.getId() + "");
-            message.put("userId", orders.getUser().getId() + "");
-
-            pusher.trigger("my-channel", "my-event", message);
-            return AppUtils.returnJS(HttpStatus.OK, "OK", "Update state order success", orderResponsitory.save(temp));
+            if(state.equalsIgnoreCase("Đang giao")){
+                Pusher pusher = new Pusher("1423362", "1988f25a6056e9b32057", "11020a120a866f41129c");
+                pusher.setCluster("ap1");
+                pusher.setEncrypted(true);
+                HashMap<String, String> message = new HashMap<>();
+                message.put("title", "Xác nhận đơn hàng");
+                message.put("description", "Đơn hàng " + orders.getId() + " của bạn đã được duyệt");
+                message.put("orderId", orders.getId() + "");
+                message.put("userId", orders.getUser().getId() + "");
+    
+                pusher.trigger("my-channel", "my-event", message);
+            }
+          
+            return AppUtils.returnJS(HttpStatus.OK, "OK", "Update state order success", orders);
         } else {
             return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Not found this order", null);
         }
@@ -389,5 +400,44 @@ public class OrderController {
         }
 
     }
+
+
+    @CrossOrigin(origins = "http://organicfood.com")
+    @PostMapping("/{id}/comment/insert")
+    public ResponseEntity<ResponseObject> getOrdersByStateAndCreateAtBetween(@PathVariable("id") int orderId,
+            @RequestParam("userId") int userId,
+            @RequestParam("rate") int rating,
+            @RequestParam("comment") String comment) {
+        Optional<Orders> optionalOrder = orderResponsitory.findById(orderId);
+        if(!optionalOrder.isPresent()){
+            return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Order not found", null);
+        }
+
+        optionalOrder.get().getOrderDetails().forEach(
+            orderDetail -> {
+                try {
+                    commentRepository.save(new Comment("userId" + userId + "-orderId" +  orderId+ "-productId" +orderDetail.getProduct().getProductId() , new Date(), rating, comment));
+                } catch (Exception e) {
+                    //TODO: handle exception
+                }
+            }
+        );
+
+        // update commentd of orders
+        Orders orders = optionalOrder.get();
+        orders.setCommented(true);
+
+        try {
+            orders = orderResponsitory.save(orders);
+            
+        } catch (Exception e) {
+            return AppUtils.returnJS(HttpStatus.NOT_IMPLEMENTED, "Failed", "Update commented of order failed", optionalOrder.get());
+        }
+
+        return AppUtils.returnJS(HttpStatus.OK, "OK", "Insert comment for order success", orders);
+
+    }
+
+
 
 }
