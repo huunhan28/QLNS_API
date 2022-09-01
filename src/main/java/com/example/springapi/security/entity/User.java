@@ -75,7 +75,7 @@ public class User {
 	private Date updatedAt;
 
 	// @NotBlank
-	
+	private String phone;
 
 	// @NotBlank
 	private String password;
@@ -112,6 +112,14 @@ public class User {
 
 	public void setAddress(String address) {
 		this.address = address;
+	}
+
+	public String getPhone() {
+        return phone;
+    }
+
+	public void setPhone(String phone) {
+        this.phone = phone;
 	}
 
 	public int getId() {
@@ -189,9 +197,11 @@ public class User {
 		this.password = newPassword;
 	}
 
-	public User(String username, String name, String password) {// for login
+	public User(String username,String phone, String name,String address, String password) {// for login
 		this.username = username;
+		this.phone = phone;
 		this.name = name;
+		this.address = address;
 		this.password = password;
 	}
 
@@ -226,6 +236,24 @@ public class User {
 		this.roles = roles;
 		this.imageUser = imageUser;
 		this.tokenFireBase = tokenFireBase;
+	}
+
+	public User(int id, @NotBlank String name, String email, String username, String address, String rememberToken,
+			Date createdAt, Date updatedAt, String password, Set<Role> roles, FileDB imageUser, String tokenFireBase, String phone) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.email = email;
+		this.username = username;
+		this.address = address;
+		this.rememberToken = rememberToken;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
+		this.password = password;
+		this.roles = roles;
+		this.imageUser = imageUser;
+		this.tokenFireBase = tokenFireBase;
+		this.phone = phone;
 	}
 
 }

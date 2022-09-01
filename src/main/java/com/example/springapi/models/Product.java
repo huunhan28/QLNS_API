@@ -64,8 +64,8 @@ public class Product {
 	private String url;
 	private int year;
 
-	@OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
-	private Collection<Image> images;
+	// @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
+	// private Collection<Image> images;
 
     // @OneToMany(
     //     mappedBy = "product",

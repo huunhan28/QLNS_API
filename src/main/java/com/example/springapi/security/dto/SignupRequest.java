@@ -35,6 +35,8 @@ public class SignupRequest {
  
      private String username;
 	private Set<String> roles;
+
+	private String phone;
 //	public SignupRequest() {
 //		super();
 //	}
@@ -76,7 +78,12 @@ public class SignupRequest {
 	public void setRole(Set<String> role) {
 		this.roles = role;
 	}
-	
+	public String getPhone() {
+		return phone;
+	}
+	public void setPhone(String phone) {
+        this.phone = phone;
+	}
 	
 	
 	

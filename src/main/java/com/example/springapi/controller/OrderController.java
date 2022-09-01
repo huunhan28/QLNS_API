@@ -416,7 +416,7 @@ public class OrderController {
         optionalOrder.get().getOrderDetails().forEach(
             orderDetail -> {
                 try {
-                    commentRepository.save(new Comment("userId" + userId + "-orderId" +  orderId+ "-productId" +orderDetail.getProduct().getProductId() , new Date(), rating, comment));
+                    commentRepository.save(new Comment("userId" + userId + "-orderId" +  orderId+ "-productId" +orderDetail.getProduct().getProductId() , new Date(), rating, comment,orderDetail.getProduct().getProductId()));
                 } catch (Exception e) {
                     //TODO: handle exception
                 }

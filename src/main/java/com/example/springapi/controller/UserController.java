@@ -181,6 +181,38 @@ public class UserController {
 		return AppUtils.returnJS(HttpStatus.OK, "OK", "Send to phone "+phone+" success", otp);
 	}
 	
+	@GetMapping("sendOTPwithMail")
+	ResponseEntity<ResponseObject> sendOTPwithMail(@RequestParam("email") String email){
+		// Create a Simple MailMessage.
+        SimpleMailMessage message = new SimpleMailMessage();
+
+		String otp = AppUtils.generateOTP();
+		// String message = "Your verify code in food app: " + otp;
+		try {
+			message.setTo(email);
+            message.setSubject("Organic Food");
+            message.setText("Your verify code in food app: " + otp);
+			System.out.println("Your verify code in food app: " + otp);
+            // Send Message!
+            this.emailSender.send(message);
+			return AppUtils.returnJS(HttpStatus.OK, "OK", "Send to email "+email+" success", otp);
+		} catch (Exception e) {
+			return AppUtils.returnJS(HttpStatus.OK, "OK", "Send to email "+email+" faild", null);
+		}
+		
+	}
+
+	@GetMapping("getEmailFromUsername")
+	ResponseEntity<ResponseObject> getEmailFromUsername(@RequestParam("username") String username){
+		Optional<User> optionalUser = userRepository.findByUsername(username);
+		if(!optionalUser.isPresent()) {
+			return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Username user not found", null);
+		}
+		User user = optionalUser.get();
+		return AppUtils.returnJS(HttpStatus.OK, "OK", "Get email from username "+username+" success", user.getEmail());
+	}
+	
+
 //	@GetMapping("checkPhonenumber")
 //	ResponseEntity<<ResponseObject>> checkPhoneNumber(@RequestParam("phone") String phone){
 //		Optional<User> optional = userRepository.findByUsername(phone);

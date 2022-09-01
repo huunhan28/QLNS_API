@@ -36,5 +36,6 @@ public class Comment {
 
     private int rating;
     private String comment;
+    private int productId;
 
 }

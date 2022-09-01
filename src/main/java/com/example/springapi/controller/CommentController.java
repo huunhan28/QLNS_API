@@ -26,8 +26,9 @@ public class CommentController {
 	CommentRepository repository;
 
 	@GetMapping("productId/{id}")
-	public List<Comment> getAllCommentByProductId(@PathVariable("id") String id) {
-		return repository.findByIdContainsOrderByCreateAtDesc("productId"+id);
+	public List<Comment> getAllCommentByProductId(@PathVariable("id") int id) {
+		//return repository.findByIdContainsOrderByCreateAtDesc("productId"+id);
+		return repository.findByProductId(id);
 	}
 
 	@GetMapping("orderId/{id}")

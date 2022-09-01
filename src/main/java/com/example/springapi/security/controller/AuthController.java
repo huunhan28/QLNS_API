@@ -94,7 +94,7 @@ public class AuthController {
 						userDetails.getUsername(), userDetails.getAddress(),type+ " "+ jwt,
 						userDetails.getCreatedAt(), userDetails.getUpdatedAt(),
 						userDetails.getPassword(), roles, userDetails.getImageUser(),
-						userDetails.getTokenFireBase()));
+						userDetails.getTokenFireBase(), userDetails.getPhone()));
 
 	}
 
@@ -112,7 +112,9 @@ public class AuthController {
 		// Create new user's account
 		User user = new User(
 				signUpRequest.getUsername(),
+				signUpRequest.getPhone(),
 				signUpRequest.getName(),
+				signUpRequest.getAddress(),
 				encoder.encode(signUpRequest.getPassword()));
 		
 		Set<String> strRoles = signUpRequest.getRole();
