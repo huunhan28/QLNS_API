@@ -9,11 +9,9 @@ import com.example.springapi.apputil.AppUtils;
 
 import com.example.springapi.dto.CartDTO;
 import com.example.springapi.dto.CartForOrderDetail;
-import com.example.springapi.dto.OrderDTO;
 import com.example.springapi.mapper.MapperService;
 import com.example.springapi.models.Cart;
 import com.example.springapi.models.CartKey;
-import com.example.springapi.models.Discount;
 import com.example.springapi.models.Product;
 import com.example.springapi.models.ResponseObject;
 import com.example.springapi.repositories.CartResponsitory;
@@ -22,11 +20,9 @@ import com.example.springapi.repositories.UserResponsitory;
 import com.example.springapi.security.entity.User;
 import com.example.springapi.service.QueryMySql;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,7 +58,7 @@ public class CartController {
 
     @GetMapping("/product/{id}")
 	ResponseEntity<ResponseObject> getCartFollowProduct(@PathVariable int id){
-        Optional<Product> foundProduct = productResponsitory.findById(id);
+        //Optional<Product> foundProduct = productResponsitory.findById(id);
         
 		// Optional<Cart> foundCart = cartResponsitory.findByProduct(foundProduct.get());
 		return null;
