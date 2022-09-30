@@ -67,6 +67,8 @@ public class Orders {
 
     private String state;
 
+    private String totalPrice;
+
     // @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "order")
     private List<OrderDetail> orderDetails;
@@ -74,11 +76,12 @@ public class Orders {
 
     private boolean commented;
 
-    public Orders(User user, Date createAt, Discount discount, String state) {
+    public Orders(User user, Date createAt, Discount discount, String state, String totalPrice) {
         this.user = user;
         this.createAt = createAt;
         this.discount = discount;
         this.state = state;
+        this.totalPrice = totalPrice;
     }
 
     public float totalMountOfOrder() {

@@ -94,10 +94,16 @@ public class CartController {
     @PostMapping("/insert")
     ResponseEntity<ResponseObject> insertOrderDetail(@RequestBody CartDTO newCartDTO) {
         
+        
+
         Optional<User> user=userResponsitory.findById(newCartDTO.getUserId());
         if(!user.isPresent()) return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "User not found", null);
         Optional<Product> product=productResponsitory.findById(newCartDTO.getProductId());
         if(!product.isPresent()) return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "Product not found", null);
+        if(product.get().getTotal() < newCartDTO.getQuantity()){
+            return AppUtils.returnJS(HttpStatus.OK, "2", "Số lượng không đủ. Số lượng tồn: " + product.get().getTotal(), null);
+        }
+
         Optional<Cart> carOptional = cartResponsitory.findByIdProductIdAndIdUserId(newCartDTO.getProductId(), newCartDTO.getUserId());
        int quantity = newCartDTO.getQuantity();
         if(carOptional.isPresent()) {

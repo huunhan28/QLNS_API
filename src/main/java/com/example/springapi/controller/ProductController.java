@@ -1,5 +1,6 @@
 package com.example.springapi.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +55,15 @@ public class ProductController {
     @CrossOrigin(origins = "http://organicfood.com")
     @GetMapping("")
     List<Product> getAllProducts() {
-        return responsitory.findAll();
+        List<Product> products = responsitory.findAll();
+        List<Product> result = new ArrayList<Product>();
+        for (Product product : products) {
+            if (product.isDisplay()) {
+                result.add(product);
+            }
+            
+        }
+        return result;
     }
     
 
@@ -77,7 +86,15 @@ public class ProductController {
     @GetMapping("category/{id}")
     List<Product> getProductByCategory(@PathVariable int id) {
         Optional<Category> category = categoryResponsitory.findById(id);
-        return responsitory.findAllByCategory(category.get());
+        List<Product> products = responsitory.findAllByCategory(category.get());
+        List<Product> result = new ArrayList<Product>();
+        for (Product product : products) {
+            if (product.isDisplay()) {
+                result.add(product);
+            }
+            
+        }
+        return result;
 
     }
 
@@ -233,13 +250,20 @@ public class ProductController {
     @GetMapping("/top10")
     public List<Product> getTop10Products() {
         List<Product> list = null;
+        List<Product> result = new ArrayList<Product>();
         try {
             list = responsitory.findFirst10ByOrderByName();
+            for (Product product : list) {
+                if (product.isDisplay()) {
+                    result.add(product);
+                }
+                
+            }
         } catch (Exception e) {
             // TODO: handle exception
             e.printStackTrace();
         }
-        return list;
+        return result;
     }
 
     @CrossOrigin(origins = "http://organicfood.com")

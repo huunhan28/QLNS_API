@@ -71,9 +71,9 @@ public class ReportController {
 			e.printStackTrace();
 		}
 		String sql = "select product_product_id id,product.name, sum(b.doanhthu) revenue from (select  product_product_id, a.quantity, price,percent, price*a.quantity*(1-COALESCE(percent,0)) 							doanhthu\r\n"
-				+ "								from (select orders.order_id, product_product_id, order_detail.quantity, price, discount_id \r\n"
-				+ "								from orders,order_detail \r\n"
-				+ "								where orders.order_id= order_order_id and (create_at between '"
+				+ "from (select orders.order_id, product_product_id, order_detail.quantity, price, discount_id \r\n"
+				+ "from orders,order_detail \r\n"
+				+ "where orders.order_id= order_order_id and (create_at between '"
 				+ startDate + "' and '" + endDate + "')) a\r\n"
 				+ "left join discount on a.discount_id = discount.discount_id) b,\r\n"
 				+ "product where product_id=product_product_id\r\n"

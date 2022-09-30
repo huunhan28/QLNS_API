@@ -21,4 +21,5 @@ public class OrderDTO {
     private Date createAt;
     private String discountId;
     private String state;
+    private String totalPrice;
 }

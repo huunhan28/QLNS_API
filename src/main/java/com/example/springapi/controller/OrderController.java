@@ -23,12 +23,14 @@ import com.example.springapi.models.OrderDetail;
 import com.example.springapi.models.OrderDetailKey;
 import com.example.springapi.models.Orders;
 import com.example.springapi.models.PKOfComment;
+import com.example.springapi.models.Product;
 import com.example.springapi.models.ResponseObject;
 import com.example.springapi.repositories.CartResponsitory;
 import com.example.springapi.repositories.CommentRepository;
 import com.example.springapi.repositories.DiscountResponsitory;
 import com.example.springapi.repositories.OrderDetailResponsitory;
 import com.example.springapi.repositories.OrderResponsitory;
+import com.example.springapi.repositories.ProductResponsitory;
 import com.example.springapi.security.repository.UserRepository;
 import com.example.springapi.service.QueryMySql;
 import com.pusher.rest.Pusher;
@@ -62,6 +64,8 @@ public class OrderController {
     @Autowired
     public JavaMailSender emailSender;
 
+    @Autowired
+    ProductResponsitory productResponsitory;
 
     @Autowired
     OrderResponsitory orderResponsitory;
@@ -167,7 +171,8 @@ public class OrderController {
                     user.get(),
                     newOrderDTO.getCreateAt(),
                     discount.get(),
-                    newOrderDTO.getState());
+                    newOrderDTO.getState(),
+                    newOrderDTO.getTotalPrice());
             km = discount.get().getPercent();
 
         } else {
@@ -175,7 +180,8 @@ public class OrderController {
                     user.get(),
                     newOrderDTO.getCreateAt(),
                     null,
-                    newOrderDTO.getState());
+                    newOrderDTO.getState(),
+                    newOrderDTO.getTotalPrice());
         }
         // Create a Simple MailMessage.
         SimpleMailMessage message = new SimpleMailMessage();
@@ -228,7 +234,14 @@ public class OrderController {
 
         List<Cart> listCart = cartResponsitory.findAllByUserId(newOrderDTO.getUserId());
         if (listCart.size() == 0)
-            return AppUtils.returnJS(HttpStatus.NOT_FOUND, "Failed", "No product in your cart", null);
+            return AppUtils.returnJS(HttpStatus.OK, "Failed", "No product in your cart", null);
+
+        for (Cart cart : listCart) {
+            if ( cart.getQuantity() > cart.getProduct().getTotal()){
+                return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("Failed", "Số lượng không đủ. "+cart.getProduct().getName()+" còn "+cart.getProduct().getTotal()+" "+cart.getProduct().getCalculationUnit(), null));
+            }
+        }
         Optional<Discount> discount = null;
         Optional<User> user = userResponsitory.findById(newOrderDTO.getUserId());
         Orders order;
@@ -240,7 +253,8 @@ public class OrderController {
                     user.get(),
                     newOrderDTO.getCreateAt(),
                     discount.get(),
-                    newOrderDTO.getState());
+                    newOrderDTO.getState(),
+                    newOrderDTO.getTotalPrice());
             km = discount.get().getPercent();
 
         } else {
@@ -248,7 +262,8 @@ public class OrderController {
                     user.get(),
                     newOrderDTO.getCreateAt(),
                     null,
-                    newOrderDTO.getState());
+                    newOrderDTO.getState(),
+                    newOrderDTO.getTotalPrice());
         }
         // Create a Simple MailMessage.
         SimpleMailMessage message = new SimpleMailMessage();
@@ -266,18 +281,18 @@ public class OrderController {
             orderId = optionalOrder.get().getId();
         for (Cart cart : listCart) {
             try {
-                if (productName.length() > 0) {
-                    productName += "\n";
-                } else {
-                    productName += cart.getProduct().getName() + " 1x" + cart.getQuantity();
-                }
+                // if (productName.length() > 0) {
+                //     productName += "\n";
+                // } else {
+                    productName += cart.getProduct().getName() + " x" + cart.getQuantity()+"\n";
+                // }
                 orderDetailResponsitory.save(new OrderDetail(
                         new OrderDetailKey(orderId, cart.getProduct().getProductId()),
                         optionalOrder.get(),
                         cart.getProduct(),
                         cart.getQuantity(),
                         cart.getProduct().getPrice(),
-                        km));
+                        km+cart.getProduct().getDiscount()));
             } catch (Exception e) {
                 // TODO: handle exception
             }
@@ -317,15 +332,25 @@ public class OrderController {
         try {
             Discount discountTemp = ordered.getDiscount();
             int quantity = discountTemp.getQuantity() - 1;
-            if(quantity <  0)
+            if(quantity <=  0)
             discountTemp.setQuantity(0);
             else discountTemp.setQuantity(quantity);
             discountResponsitory.save(discountTemp);
         } catch (Exception e) {
             //TODO: handle exception
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+            return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("Failed", "Update quantity discount failed", ordered));
         }
+       }
+
+       
+
+       //change quantity product
+       for (Cart cart : listCart) {
+            Product productTemp = cart.getProduct();
+            int quantity = productTemp.getTotal() - cart.getQuantity();
+            productTemp.setTotal(quantity);
+            productResponsitory.save(productTemp);
        }
 
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -358,6 +383,20 @@ public class OrderController {
                 message.put("userId", orders.getUser().getId() + "");
     
                 pusher.trigger("my-channel", "my-event", message);
+            }
+            
+            if(state.equalsIgnoreCase("Đã hủy")){
+                for(OrderDetail orderDetail: temp.getOrderDetails()){
+                    Product product = orderDetail.getProduct();
+                    product.setTotal(product.getTotal() + orderDetail.getQuantity());
+                    productResponsitory.save(product);
+                }
+                if(temp.getDiscount()!=null){
+                    Discount discountTemp = discountResponsitory.getById(temp.getDiscount().getId()) ;
+                    discountTemp.setQuantity(discountTemp.getQuantity() + 1);
+                    discountResponsitory.save(discountTemp);
+                }
+                
             }
           
             return AppUtils.returnJS(HttpStatus.OK, "OK", "Update state order success", orders);
@@ -416,7 +455,7 @@ public class OrderController {
         optionalOrder.get().getOrderDetails().forEach(
             orderDetail -> {
                 try {
-                    commentRepository.save(new Comment("userId" + userId + "-orderId" +  orderId+ "-productId" +orderDetail.getProduct().getProductId() , new Date(), rating, comment,orderDetail.getProduct().getProductId()));
+                    commentRepository.save(new Comment("userId" + userId + "-orderId" +  orderId+ "-productId" +orderDetail.getProduct().getProductId() , new Date(), rating, comment,orderDetail.getProduct().getProductId(),userId));
                 } catch (Exception e) {
                     //TODO: handle exception
                 }
